@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { postService } from '../services/postService';
 import { Post } from '../types';
-import { Calendar, User, Tag, ChevronRight } from 'lucide-react';
+import { Calendar, User, Tag, ChevronRight, ImageIcon, LayoutGrid } from 'lucide-react';
 
 const Blog: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -42,37 +42,58 @@ const Blog: React.FC = () => {
         </header>
 
         <div className="grid lg:grid-cols-3 gap-16">
-          <div className="lg:col-span-2 space-y-20">
+          <div className="lg:col-span-2 space-y-24">
             {posts.length > 0 ? (
               posts.map(post => (
-                <article key={post.id} className="bg-white rounded-[4rem] shadow-sm overflow-hidden border border-slate-100 group transition-all duration-700 hover:shadow-2xl hover:shadow-emerald-900/5">
+                <article key={post.id} className="bg-white rounded-[4rem] shadow-sm overflow-hidden border border-slate-100 group transition-all duration-700 hover:shadow-2xl">
                   <div className="flex flex-col">
-                    <div className="w-full overflow-hidden h-[400px]">
+                    <div className="w-full overflow-hidden h-[450px]">
                       <img 
                         src={post.imageUrl} 
                         alt={post.title} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition duration-1000"
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-1000"
                       />
                     </div>
-                    <div className="p-12 md:p-16 flex flex-col">
+                    <div className="p-10 md:p-16 flex flex-col">
                       <div className="flex items-center gap-6 text-[10px] font-black text-slate-400 uppercase mb-8 tracking-[0.2em]">
-                        <span className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-full border border-slate-100 text-emerald-600"><Tag className="w-3 h-3" /> {post.category}</span>
-                        <span className="flex items-center gap-2"><Calendar className="w-3 h-3" /> {new Date(post.createdAt?.seconds * 1000).toLocaleDateString()}</span>
+                        <span className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 text-emerald-600"><Tag className="w-3 h-3" /> {post.category}</span>
+                        <span className="flex items-center gap-2"><Calendar className="w-3 h-3" /> {new Date(post.createdAt?.seconds * 1000).toLocaleDateString('pt-PT')}</span>
                       </div>
-                      <h2 className="text-4xl md:text-5xl font-black mb-8 text-slate-900 group-hover:text-emerald-600 transition-colors leading-[1.1] tracking-tight">
+                      
+                      <h2 className="text-4xl md:text-5xl font-black mb-10 text-slate-900 group-hover:text-emerald-600 transition-colors leading-[1.1] tracking-tight">
                         {post.title}
                       </h2>
+                      
                       <div 
-                        className="post-content text-slate-600 mb-10 text-lg leading-relaxed line-clamp-4"
+                        className="post-content text-slate-600 mb-12 text-lg leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: post.content }}
                       />
+
+                      {/* GALERIA DO POST (Se existir) */}
+                      {post.gallery && post.gallery.length > 0 && (
+                        <div className="mb-16 p-8 bg-slate-50 rounded-[3rem] border border-slate-100">
+                           <h4 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 mb-8 flex items-center gap-3">
+                             <ImageIcon className="w-4 h-4" /> Galeria de Fotos do Evento
+                           </h4>
+                           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                             {post.gallery.map((img, idx) => (
+                               <div key={idx} className="aspect-square rounded-2xl overflow-hidden shadow-md group/img border-4 border-white">
+                                  <img 
+                                    src={img} 
+                                    className="w-full h-full object-cover group-hover/img:scale-110 transition duration-500 cursor-zoom-in" 
+                                    alt={`Foto ${idx + 1} de ${post.title}`}
+                                    onClick={() => window.open(img, '_blank')}
+                                  />
+                               </div>
+                             ))}
+                           </div>
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-between mt-auto pt-10 border-t border-slate-50">
                         <span className="flex items-center gap-3 text-xs text-slate-500 font-black uppercase tracking-widest">
                           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 text-emerald-600"><User className="w-5 h-5" /></div> {post.author || 'Equipe Acácias'}
                         </span>
-                        <button className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-3 hover:bg-emerald-600 transition-all text-xs uppercase tracking-widest group">
-                          Ler Completo <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition" />
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -80,24 +101,25 @@ const Blog: React.FC = () => {
               ))
             ) : (
               <div className="text-center py-40 bg-white rounded-[4rem] border-2 border-dashed border-slate-200">
+                <LayoutGrid className="w-16 h-16 text-slate-100 mx-auto mb-6" />
                 <p className="text-slate-300 text-2xl font-black uppercase tracking-widest">Aguardando Novas Notícias...</p>
               </div>
             )}
           </div>
 
           {/* Sidebar */}
-          <aside className="space-y-12">
+          <aside className="space-y-12 h-fit sticky top-32">
             <div className="bg-slate-900 rounded-[3.5rem] p-12 text-white shadow-2xl shadow-emerald-900/20 relative overflow-hidden group">
               <div className="absolute -top-20 -right-20 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl group-hover:scale-150 transition duration-1000"></div>
-              <h3 className="text-4xl font-black mb-6 relative z-10 leading-tight">Mantenha-se Atualizado</h3>
-              <p className="text-slate-400 mb-10 font-medium relative z-10 text-lg">Receba as novidades sobre os nossos cursos e eventos diretamente.</p>
+              <h3 className="text-4xl font-black mb-6 relative z-10 leading-tight">Atualizações Wela</h3>
+              <p className="text-slate-400 mb-10 font-medium relative z-10 text-lg leading-relaxed">Não perca o início dos nossos próximos cursos intensivos.</p>
               <form className="space-y-5 relative z-10">
                 <input 
                   type="email" 
-                  placeholder="Seu melhor e-mail" 
-                  className="w-full px-8 py-5 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 ring-emerald-500 transition-all"
+                  placeholder="Seu e-mail" 
+                  className="w-full px-8 py-5 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 ring-emerald-500 transition-all font-bold"
                 />
-                <button className="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black hover:bg-emerald-700 transition shadow-xl shadow-emerald-900/40 uppercase text-xs tracking-widest">
+                <button className="w-full bg-emerald-600 text-white py-5 rounded-2xl font-black hover:bg-emerald-700 transition shadow-xl uppercase text-xs tracking-widest">
                   Inscrever Agora
                 </button>
               </form>
@@ -106,7 +128,7 @@ const Blog: React.FC = () => {
             <div className="bg-white rounded-[3.5rem] p-12 shadow-sm border border-slate-100">
               <h3 className="text-[10px] font-black mb-10 text-slate-400 uppercase tracking-[0.4em] border-b border-slate-50 pb-6">Categorias</h3>
               <ul className="space-y-6">
-                {['Cursos Acácias', 'Impacto Social', 'Empreendedorismo', 'Educação', 'Notícias'].map(cat => (
+                {['Cursos Acácias', 'Impacto Social', 'Empreendedorismo', 'Notícias'].map(cat => (
                   <li key={cat}>
                     <button className="flex items-center justify-between w-full text-slate-500 hover:text-emerald-600 font-black transition-all group py-2">
                       <span className="text-base">{cat}</span>

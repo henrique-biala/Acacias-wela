@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, Send, MessageSquare, Loader2 } from 'lucide-react';
 import { siteService } from '../services/siteService';
 import { SiteConfig } from '../types';
+import { CONTACT_INFO } from '../constants';
 
 const Contact: React.FC = () => {
   const [sent, setSent] = useState(false);
@@ -28,11 +29,7 @@ const Contact: React.FC = () => {
     </div>
   );
 
-  const contactInfo = config?.contact || {
-    email: 'contato@acaciaswela.org',
-    phone: '+244 9XX XXX XXX',
-    location: 'Luanda, Angola'
-  };
+  const contactInfo = config?.contact || CONTACT_INFO;
 
   return (
     <div className="bg-slate-50 min-h-screen py-24">

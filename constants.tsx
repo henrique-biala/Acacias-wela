@@ -11,6 +11,16 @@ export const COLORS = {
 // URL oficial do logo fornecida pelo usuário
 export const LOGO_URL = 'https://i.imgur.com/7KLKYM1.png'; 
 
+export const CONTACT_INFO = {
+  phone: '+244 933 244 547',
+  location: 'Benguela, Angola',
+  email: 'contato@acaciaswela.org'
+};
+
+export const SOCIAL_LINKS = {
+  facebook: 'https://www.facebook.com/profile.php?id=100066542528179'
+};
+
 export const PROJECTS: Project[] = [
   {
     id: '1',

@@ -36,9 +36,10 @@ export const postService = {
   },
 
   /**
-   * Converte um arquivo em Base64 com compressão para caber no Firestore (limite 1MB)
+   * Converte um arquivo em Base64 com compressão
+   * @param isGallery Se for para galeria, comprime mais para economizar espaço no Firestore
    */
-  async uploadMedia(file: File): Promise<string> {
+  async uploadMedia(file: File, isGallery: boolean = false): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -47,20 +48,20 @@ export const postService = {
         img.src = event.target?.result as string;
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1200;
-          const MAX_HEIGHT = 1200;
+          // Reduzimos o tamanho máximo para galeria para caber mais fotos
+          const MAX_DIM = isGallery ? 800 : 1200; 
           let width = img.width;
           let height = img.height;
 
           if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
+            if (width > MAX_DIM) {
+              height *= MAX_DIM / width;
+              width = MAX_DIM;
             }
           } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
+            if (height > MAX_DIM) {
+              width *= MAX_DIM / height;
+              height = MAX_DIM;
             }
           }
 
@@ -69,8 +70,8 @@ export const postService = {
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
           
-          // Qualidade 0.7 para garantir que fique bem abaixo de 1MB
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          // Qualidade menor para galeria (0.5) vs capa (0.7)
+          const dataUrl = canvas.toDataURL('image/jpeg', isGallery ? 0.5 : 0.7);
           resolve(dataUrl);
         };
       };
@@ -78,32 +79,26 @@ export const postService = {
     });
   },
 
-  async createPost(post: Omit<Post, 'id' | 'createdAt'>, imageFile: File): Promise<string> {
-    // 1. Converter imagem para Base64 otimizado
-    const imageUrl = await this.uploadMedia(imageFile);
+  async createPost(post: Omit<Post, 'id' | 'createdAt' | 'gallery'>, imageFile: File, galleryFiles: File[] = []): Promise<string> {
+    // 1. Converter imagem de capa
+    const imageUrl = await this.uploadMedia(imageFile, false);
 
-    // 2. Salvar no Firestore
+    // 2. Converter imagens da galeria (em paralelo)
+    const gallery = await Promise.all(
+      galleryFiles.map(file => this.uploadMedia(file, true))
+    );
+
+    // 3. Salvar no Firestore
     const docRef = await addDoc(collection(db, COLLECTION_NAME), {
       ...post,
       imageUrl,
+      gallery,
       createdAt: serverTimestamp()
     });
     return docRef.id;
   },
 
-  async updatePost(id: string, post: Partial<Post>, imageFile?: File): Promise<void> {
-    let updateData = { ...post };
-
-    if (imageFile) {
-      updateData.imageUrl = await this.uploadMedia(imageFile);
-    }
-
-    const docRef = doc(db, COLLECTION_NAME, id);
-    await updateDoc(docRef, updateData);
-  },
-
   async deletePost(id: string): Promise<void> {
     await deleteDoc(doc(db, COLLECTION_NAME, id));
-    // Não é mais necessário deletar do storage
   }
 };

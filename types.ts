@@ -4,6 +4,7 @@ export interface Post {
   title: string;
   content: string;
   imageUrl: string;
+  gallery?: string[]; // Array de strings Base64 para fotos extras
   category: string;
   createdAt: any;
   author: string;
