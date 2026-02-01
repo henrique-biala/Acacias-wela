@@ -2,10 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import * as ReactRouterDom from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './firebase';
+import { auth, db } from './firebase';
+import { collection, addDoc, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { siteService } from './services/siteService';
+// Fix: Removed non-existent LOGS_URL import
 import { LOGO_URL, SOCIAL_LINKS, CONTACT_INFO } from './constants';
-import { TreeDeciduous, Loader2, Facebook, MapPin, Phone, X, Bell, ExternalLink, Heart } from 'lucide-react';
+import { TreeDeciduous, Loader2, Facebook, MapPin, Phone, X, Bell, ExternalLink, Heart, Download, Zap } from 'lucide-react';
 import { SiteConfig, SiteNotification } from './types';
 
 import Navbar from './components/Navbar';
@@ -19,166 +21,149 @@ import Login from './pages/Login';
 
 const { HashRouter, Routes, Route, Navigate, useLocation } = ReactRouterDom;
 
-// Componente de Notificação Global
-const NotificationBanner = ({ notification }: { notification?: SiteNotification }) => {
-  const [isVisible, setIsVisible] = useState(true);
+// COMPONENTE DE ALERTA FLASH (POPUP DE SISTEMA)
+const FlashMessageOverlay = () => {
+  const [flash, setFlash] = useState<{ title: string; body: string } | null>(null);
 
-  if (!notification?.active || !isVisible) return null;
+  useEffect(() => {
+    // Escuta em tempo real por novas mensagens flash no Firestore
+    const q = query(collection(db, 'flash_messages'), orderBy('timestamp', 'desc'), limit(1));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const data = change.doc.data();
+          // Só mostra se for recente (últimos 30 segundos) para evitar spam ao carregar
+          if (Date.now() - data.timestamp?.toMillis() < 30000) {
+            setFlash({ title: data.title, body: data.body });
+            
+            // Tenta disparar a notificação nativa do navegador também
+            if (Notification.permission === 'granted') {
+              new Notification(data.title, { body: data.body, icon: LOGO_URL });
+            }
+          }
+        }
+      });
+    });
+    return () => unsubscribe();
+  }, []);
 
-  const styles = {
-    success: 'bg-emerald-600 text-white',
-    info: 'bg-sky-600 text-white',
-    warning: 'bg-amber-500 text-white'
-  };
+  if (!flash) return null;
 
   return (
-    <div className={`${styles[notification.type || 'info']} py-3 px-4 relative z-[60] flex items-center justify-center gap-4 transition-all animate-in slide-in-from-top duration-500`}>
-      <div className="flex items-center gap-3 max-w-7xl mx-auto px-4 w-full">
-        <Bell className="w-4 h-4 shrink-0 animate-bounce" />
-        <p className="text-[10px] md:text-xs font-black uppercase tracking-widest flex-grow text-center md:text-left">
-          {notification.message}
-        </p>
-        {notification.link && (
-          <a 
-            href={notification.link.startsWith('http') ? notification.link : `#${notification.link}`} 
-            className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full text-[9px] font-black uppercase transition whitespace-nowrap"
-          >
-            Ver Mais <ExternalLink className="w-3 h-3" />
-          </a>
-        )}
-        <button 
-          onClick={() => setIsVisible(false)}
-          className="p-1 hover:bg-white/10 rounded-lg transition"
-        >
-          <X className="w-4 h-4" />
-        </button>
+    <div className="fixed inset-x-4 top-6 z-[200] flex justify-center pointer-events-none">
+      <div className="bg-slate-900 text-white p-6 rounded-[2.5rem] shadow-2xl border-2 border-emerald-500/50 w-full max-w-md pointer-events-auto animate-in slide-in-from-top-20 duration-500">
+        <div className="flex items-start gap-4">
+          <div className="bg-emerald-600 p-3 rounded-2xl shrink-0 animate-pulse">
+            <Zap className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex-1">
+            <div className="flex justify-between items-center mb-1">
+              <h4 className="font-black text-emerald-400 uppercase text-[10px] tracking-widest">{flash.title}</h4>
+              <button onClick={() => setFlash(null)} className="p-1 hover:bg-white/10 rounded-lg"><X className="w-4 h-4" /></button>
+            </div>
+            <p className="text-sm font-bold leading-tight">{flash.body}</p>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-// BOTÃO FLUTUANTE PARA SEGUIR (PUSH)
-const FollowProjectButton = () => {
-  const [status, setStatus] = useState<NotificationPermission | 'unsupported'>(
-    'default'
+const NotificationBanner = ({ notification }: { notification?: SiteNotification }) => {
+  const [isVisible, setIsVisible] = useState(true);
+  if (!notification?.active || !isVisible) return null;
+  const styles = { success: 'bg-emerald-600', info: 'bg-sky-600', warning: 'bg-amber-500' };
+
+  return (
+    <div className={`${styles[notification.type || 'info']} py-3 px-4 relative z-[60] flex items-center justify-center gap-4 transition-all animate-in slide-in-from-top duration-500`}>
+      <div className="flex items-center gap-3 max-w-7xl mx-auto px-4 w-full text-white">
+        <Bell className="w-4 h-4 shrink-0 animate-bounce" />
+        <p className="text-[10px] md:text-xs font-black uppercase tracking-widest flex-grow text-center md:text-left">
+          {notification.message}
+        </p>
+        <button onClick={() => setIsVisible(false)} className="p-1 hover:bg-white/10 rounded-lg transition"><X className="w-4 h-4" /></button>
+      </div>
+    </div>
   );
+};
+
+const SmartFollowButton = () => {
+  const [permission, setPermission] = useState<NotificationPermission | 'ios' | 'default'>('default');
 
   useEffect(() => {
-    if (!('Notification' in window)) {
-      setStatus('unsupported');
-    } else {
-      setStatus(Notification.permission);
-    }
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    if (isIOS) setPermission('ios');
+    else if ('Notification' in window) setPermission(Notification.permission);
   }, []);
 
   const handleFollow = async () => {
-    if (status === 'unsupported') {
-      alert('O seu navegador não suporta notificações diretas. Tente no Chrome ou Safari do telemóvel.');
+    if (permission === 'ios') {
+      alert("No iPhone: Clica em 'Partilhar' e 'Adicionar ao Ecrã Principal' para receberes alertas diretos.");
       return;
     }
-
-    const permission = await Notification.requestPermission();
-    setStatus(permission);
-
-    if (permission === 'granted') {
-      new Notification("Acácias Wela", {
-        body: "Obrigado por seguir o projeto! Receberá novidades diretamente aqui.",
-        icon: LOGO_URL
-      });
+    const result = await Notification.requestPermission();
+    setPermission(result);
+    if (result === 'granted') {
+      await addDoc(collection(db, 'subscribers'), { timestamp: new Date(), active: true });
+      alert("Inscrição confirmada! Receberás os alertas de Benguela em tempo real.");
     }
   };
 
-  if (status === 'granted' || status === 'unsupported') return null;
+  if (permission === 'granted') return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[100] animate-in slide-in-from-bottom-10 duration-700">
-      <button 
-        onClick={handleFollow}
-        className="bg-slate-900 text-white px-6 py-4 rounded-full font-black text-[10px] uppercase tracking-widest flex items-center gap-3 shadow-2xl hover:bg-emerald-600 transition-all border-2 border-white/20 hover:scale-105 active:scale-95"
-      >
-        <Heart className="w-4 h-4 text-rose-500 fill-rose-500 animate-pulse" />
-        Seguir Projeto
+    <div className="fixed bottom-8 right-8 z-[100]">
+      <button onClick={handleFollow} className="bg-slate-900 text-white p-5 rounded-full shadow-2xl hover:bg-emerald-600 transition-all border-4 border-white active:scale-90 group relative">
+        <Bell className="w-6 h-6" />
+        <span className="absolute right-full mr-4 top-1/2 -translate-y-1/2 bg-slate-900 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Seguir Projeto</span>
       </button>
     </div>
   );
 };
 
 const Footer = ({ config }: { config: SiteConfig | null }) => {
-  const [imgError, setImgError] = useState(false);
   const info = config?.contact || CONTACT_INFO;
-  const fbLink = config?.contact?.facebook || SOCIAL_LINKS.facebook;
-
   return (
     <footer className="bg-slate-900 text-white py-24">
       <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-4 gap-16">
         <div className="col-span-2">
-          <div className="flex items-center gap-6 mb-8">
-            <div className="h-20 w-auto flex items-center justify-center p-3 bg-white rounded-2xl shadow-xl">
-              {!imgError ? (
-                <img 
-                  src={LOGO_URL} 
-                  alt="Logo Acácias Wela" 
-                  className="h-full w-auto object-contain"
-                  onError={() => setImgError(true)}
-                />
-              ) : (
-                <TreeDeciduous className="w-10 h-10 text-emerald-600" />
-              )}
-            </div>
+          <div className="flex items-center gap-4 mb-8">
+            <img src={LOGO_URL} className="h-16 w-auto bg-white p-2 rounded-xl" alt="Logo" />
             <div>
-              <h2 className="text-2xl font-bold">Acacias <span className="text-emerald-400">Wela</span></h2>
-              <p className="text-emerald-400/60 text-[8px] font-bold uppercase tracking-widest">Treinamento Profissional e Pessoal</p>
+              <h2 className="text-xl font-black">Acacias <span className="text-emerald-400">Wela</span></h2>
+              <p className="text-[8px] font-black uppercase text-emerald-400/50 tracking-[0.2em]">Impacto Social em Benguela</p>
             </div>
           </div>
-          <p className="text-slate-400 max-w-sm mb-10 text-sm leading-relaxed font-medium">
-            Elevando o potencial da juventude angolana através da capacitação prática e desenvolvimento humano em Benguela desde 2020.
+          <p className="text-slate-400 max-w-sm mb-8 text-sm leading-relaxed">
+            Capacitando a juventude angolana através de treinamento profissional e desenvolvimento humano.
           </p>
-          <div className="flex gap-4">
-            <a 
-              href={fbLink} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center hover:bg-emerald-600 transition-all duration-300 group"
-            >
-              <Facebook className="w-6 h-6 text-slate-400 group-hover:text-white" />
-            </a>
-          </div>
         </div>
         <div>
-          <h4 className="font-bold mb-8 text-white uppercase tracking-widest text-[10px] border-b border-white/10 pb-4">Navegação</h4>
-          <ul className="space-y-4 text-slate-400 font-bold text-xs uppercase tracking-wider">
-            <li><a href="#/" className="hover:text-emerald-400 transition-colors">Início</a></li>
-            <li><a href="#/sobre" className="hover:text-emerald-400 transition-colors">Nossa História</a></li>
-            <li><a href="#/projetos" className="hover:text-emerald-400 transition-colors">Nossas Ações</a></li>
-            <li><a href="#/blog" className="hover:text-emerald-400 transition-colors">Blog</a></li>
-            <li><a href="#/contatos" className="hover:text-emerald-400 transition-colors">Contatos</a></li>
+          <h4 className="font-black mb-6 text-[10px] uppercase tracking-widest text-slate-500">Links Rápidos</h4>
+          <ul className="space-y-3 text-xs font-bold uppercase tracking-wider text-slate-400">
+            <li><a href="#/" className="hover:text-emerald-400">Início</a></li>
+            <li><a href="#/sobre" className="hover:text-emerald-400">Sobre</a></li>
+            <li><a href="#/blog" className="hover:text-emerald-400">Blog</a></li>
           </ul>
         </div>
         <div>
-          <h4 className="font-bold mb-8 text-white uppercase tracking-widest text-[10px] border-b border-white/10 pb-4">Sede Benguela</h4>
-          <ul className="space-y-6 text-slate-400 font-bold text-xs">
-            <li className="flex gap-3">
-              <MapPin className="w-5 h-5 text-emerald-400 shrink-0" />
-              <span>{info.location}</span>
-            </li>
-            <li className="flex gap-3">
-              <Phone className="w-5 h-5 text-emerald-400 shrink-0" />
-              <span>{info.phone}</span>
-            </li>
-          </ul>
+          <h4 className="font-black mb-6 text-[10px] uppercase tracking-widest text-slate-500">Contacto</h4>
+          <p className="text-xs font-bold text-slate-400 mb-2">{info.location}</p>
+          <p className="text-xs font-bold text-slate-400">{info.phone}</p>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 pt-16 mt-16 border-t border-white/5 text-center text-slate-500 text-[10px] font-bold uppercase tracking-widest">
-        &copy; {new Date().getFullYear()} Acácias Wela. Todos os direitos reservados.
+      <div className="max-w-7xl mx-auto px-4 pt-16 mt-16 border-t border-white/5 flex flex-col items-center gap-4">
+        <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.2em] text-center">
+          &copy; {new Date().getFullYear()} Acácias Wela. Todos os direitos reservados.
+        </p>
+        <div className="bg-white/5 px-6 py-3 rounded-full border border-white/10">
+          <p className="text-[10px] text-emerald-400 font-bold text-center">
+            Desenvolvido por <span className="text-white">Henrique Lucas Biala</span> em colaboração com <span className="text-white">Esmael Quivunza</span>.
+          </p>
+        </div>
       </div>
     </footer>
   );
-};
-
-const ProtectedRoute = ({ children, user, loading }: { children?: React.ReactNode, user: any, loading: boolean }) => {
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
-  return <>{children}</>;
 };
 
 const AppContent = () => {
@@ -193,18 +178,15 @@ const AppContent = () => {
       setUser(firebaseUser || null);
       setLoading(false);
     });
-    
     siteService.getConfig().then(setSiteConfig);
-
     return () => unsubscribe();
   }, [location.pathname]);
 
   return (
     <div className="flex flex-col min-h-screen">
-      {!isAdminPath && siteConfig?.notification?.active && (
-        <NotificationBanner notification={siteConfig.notification} />
-      )}
+      {!isAdminPath && siteConfig?.notification?.active && <NotificationBanner notification={siteConfig.notification} />}
       {!isAdminPath && <Navbar />}
+      <FlashMessageOverlay />
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -213,29 +195,20 @@ const AppContent = () => {
           <Route path="/projetos" element={<Projects />} />
           <Route path="/contatos" element={<Contact />} />
           <Route path="/login" element={<Login user={user} />} />
-          <Route 
-            path="/admin/*" 
-            element={
-              <ProtectedRoute user={user} loading={loading}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/admin/*" element={<AdminDashboard />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      {!isAdminPath && <FollowProjectButton />}
+      {!isAdminPath && <SmartFollowButton />}
       {!isAdminPath && <Footer config={siteConfig} />}
     </div>
   );
 };
 
-const App = () => {
-  return (
-    <HashRouter>
-      <AppContent />
-    </HashRouter>
-  );
-};
+const App = () => (
+  <HashRouter>
+    <AppContent />
+  </HashRouter>
+);
 
 export default App;
