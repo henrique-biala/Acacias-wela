@@ -5,8 +5,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import { siteService } from './services/siteService';
 import { LOGO_URL, SOCIAL_LINKS, CONTACT_INFO } from './constants';
-import { TreeDeciduous, Loader2, Facebook, MapPin, Phone } from 'lucide-react';
-import { SiteConfig } from './types';
+import { TreeDeciduous, Loader2, Facebook, MapPin, Phone, X, Bell, ExternalLink } from 'lucide-react';
+import { SiteConfig, SiteNotification } from './types';
 
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -19,11 +19,48 @@ import Login from './pages/Login';
 
 const { HashRouter, Routes, Route, Navigate, useLocation } = ReactRouterDom;
 
-// Componente de rodapé dinâmico
+// Componente de Notificação Global
+const NotificationBanner = ({ notification }: { notification?: SiteNotification }) => {
+  const [isVisible, setIsVisible] = useState(true);
+
+  if (!notification?.active || !isVisible) return null;
+
+  const styles = {
+    success: 'bg-emerald-600 text-white',
+    info: 'bg-sky-600 text-white',
+    warning: 'bg-amber-500 text-white'
+  };
+
+  return (
+    <div className={`${styles[notification.type || 'info']} py-3 px-4 relative z-[60] flex items-center justify-center gap-4 transition-all animate-in slide-in-from-top duration-500`}>
+      <div className="flex items-center gap-3 max-w-7xl mx-auto px-4 w-full">
+        <Bell className="w-4 h-4 shrink-0 animate-bounce" />
+        <p className="text-[10px] md:text-xs font-black uppercase tracking-widest flex-grow text-center md:text-left">
+          {notification.message}
+        </p>
+        {notification.link && (
+          <a 
+            href={notification.link.startsWith('http') ? notification.link : `#${notification.link}`} 
+            className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full text-[9px] font-black uppercase transition whitespace-nowrap"
+          >
+            Ver Mais <ExternalLink className="w-3 h-3" />
+          </a>
+        )}
+        <button 
+          onClick={() => setIsVisible(false)}
+          className="p-1 hover:bg-white/10 rounded-lg transition"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const Footer = ({ config }: { config: SiteConfig | null }) => {
   const [imgError, setImgError] = useState(false);
   const info = config?.contact || CONTACT_INFO;
-  const fbLink = (config?.contact as any)?.facebook || SOCIAL_LINKS.facebook;
+  const fbLink = config?.contact?.facebook || SOCIAL_LINKS.facebook;
 
   return (
     <footer className="bg-slate-900 text-white py-24">
@@ -92,7 +129,6 @@ const Footer = ({ config }: { config: SiteConfig | null }) => {
   );
 };
 
-// Proteção de Rota
 const ProtectedRoute = ({ children, user, loading }: { children?: React.ReactNode, user: any, loading: boolean }) => {
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
@@ -112,7 +148,6 @@ const AppContent = () => {
       setLoading(false);
     });
     
-    // Busca config para o rodapé
     siteService.getConfig().then(setSiteConfig);
 
     return () => unsubscribe();
@@ -120,6 +155,9 @@ const AppContent = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      {!isAdminPath && siteConfig?.notification?.active && (
+        <NotificationBanner notification={siteConfig.notification} />
+      )}
       {!isAdminPath && <Navbar />}
       <main className="flex-grow">
         <Routes>

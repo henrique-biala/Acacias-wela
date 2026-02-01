@@ -24,6 +24,13 @@ export interface Founder {
   imageUrl?: string;
 }
 
+export interface SiteNotification {
+  active: boolean;
+  message: string;
+  link?: string;
+  type: 'success' | 'info' | 'warning';
+}
+
 export interface SiteConfig {
   hero: {
     title: string;
@@ -43,8 +50,10 @@ export interface SiteConfig {
     email: string;
     phone: string;
     location: string;
+    facebook?: string;
   };
   projects: Project[];
+  notification?: SiteNotification;
 }
 
 export interface ContactForm {
