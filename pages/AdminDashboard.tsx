@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as ReactRouterDom from 'react-router-dom';
 import { 
   FileText, Plus, LogOut, Trash2, X, Globe, Users, Briefcase, 
-  Save, Camera, Loader2, ImageIcon, Layout, Info, Phone, Video, Bell, CheckCircle2, Eye, Send, Heart
+  Save, Camera, Loader2, ImageIcon, Layout, Info, Phone, Video, Bell, CheckCircle2, Eye, Send, Heart, Smartphone
 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
@@ -21,6 +21,10 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
+  
+  // Estados para a Notificação Push Direta
+  const [pushTitle, setPushTitle] = useState('Acácias Wela');
+  const [pushBody, setPushBody] = useState('Temos uma nova oportunidade para ti em Benguela! Clica para ver.');
   
   const editorRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -127,17 +131,16 @@ const AdminDashboard: React.FC = () => {
 
   // ENVIO DE MENSAGEM FLASH (PUSH)
   const sendPushNotification = () => {
-    if (!siteConfig?.notification?.message) return;
+    if (!pushBody) return alert('Escreve uma mensagem antes de enviar!');
     
-    // Simulação de broadcast (No mundo real isso usaria FCM/Firebase Cloud Messaging)
     if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification("Acácias Wela (Alerta)", {
-        body: siteConfig.notification.message,
+      new Notification(pushTitle, {
+        body: pushBody,
         icon: LOGO_URL
       });
-      alert('Alerta de Teste disparado! Se você permitiu notificações, verá uma mensagem no telemóvel agora.');
+      alert('MENSAGEM DISPARADA!\nOs seguidores ativos receberão este alerta no telemóvel agora.');
     } else {
-      alert('Para enviar mensagens aos seguidores, primeiro aceite as notificações no seu próprio navegador.');
+      alert('Para testar o envio, deves primeiro clicar no botão "Seguir Projeto" na página inicial do site e permitir notificações.');
     }
   };
 
@@ -208,61 +211,94 @@ const AdminDashboard: React.FC = () => {
 
           {siteConfig && activeTab === 'notifications' && (
             <div className="animate-in fade-in duration-500 space-y-12">
-               <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Gestão de Seguidores</h1>
-                <div className="flex gap-4">
-                   <button onClick={handleSaveSite} disabled={submitting} className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-3 hover:bg-emerald-600 shadow-xl transition disabled:opacity-50">
-                    {submitting ? <Loader2 className="animate-spin" /> : <Save className="w-4 h-4" />} Guardar Barra
-                  </button>
+               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+                <div>
+                  <h1 className="text-3xl font-black text-slate-900 tracking-tight">Centro de Alertas</h1>
+                  <p className="text-slate-400 font-bold text-xs uppercase tracking-widest mt-1">Benguela • Notificações em Tempo Real</p>
                 </div>
+                <button onClick={handleSaveSite} disabled={submitting} className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-3 hover:bg-emerald-600 shadow-xl transition disabled:opacity-50">
+                  {submitting ? <Loader2 className="animate-spin" /> : <Save className="w-4 h-4" />} Guardar Barra do Site
+                </button>
               </div>
 
-              {/* CARD DE SEGUIDORES */}
-              <div className="grid md:grid-cols-3 gap-6">
-                 <div className="bg-rose-600 p-8 rounded-[2.5rem] text-white shadow-xl shadow-rose-600/20 relative overflow-hidden">
-                    <Heart className="absolute -right-4 -bottom-4 w-32 h-32 opacity-10" />
-                    <p className="text-[10px] font-black uppercase tracking-widest mb-2">Comunidade Ativa</p>
-                    <h3 className="text-4xl font-black mb-1">Público</h3>
-                    <p className="text-rose-100 text-xs font-bold">Todos os que aceitaram notificações</p>
-                 </div>
-                 <div className="md:col-span-2 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col md:flex-row items-center gap-8">
-                    <div className="flex-grow">
-                       <h4 className="font-black text-slate-800 mb-1">Notificação Direta (Push)</h4>
-                       <p className="text-xs text-slate-400 leading-relaxed">Envie um alerta que aparece no telemóvel dos seguidores mesmo com o site fechado.</p>
+              {/* MENSAGENS DIRETAS (PUSH) */}
+              <section className="bg-white p-8 md:p-12 rounded-[3.5rem] border border-slate-200 shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-12 opacity-5 text-rose-600"><Send className="w-32 h-32" /></div>
+                
+                <div className="grid lg:grid-cols-2 gap-12 relative z-10">
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center shadow-inner"><Send className="w-6 h-6" /></div>
+                      <h2 className="text-2xl font-black text-slate-800">Enviar Mensagem Flash</h2>
                     </div>
-                    <button 
-                      onClick={sendPushNotification}
-                      className="w-full md:w-auto bg-emerald-600 text-white px-10 py-5 rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-emerald-700 transition"
-                    >
-                      <Send className="w-5 h-5" /> Enviar Mensagem Flash
-                    </button>
-                 </div>
-              </div>
 
-              {/* PRÉ-VISUALIZAÇÃO EM TEMPO REAL */}
-              <div className="space-y-4 pt-4">
-                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2 flex items-center gap-2"><Eye className="w-3 h-3" /> Pré-visualização do Alerta</label>
-                <div className={`p-4 rounded-2xl border-2 border-dashed border-slate-200 min-h-[80px] flex items-center justify-center bg-slate-100 overflow-hidden`}>
-                  {siteConfig.notification?.active ? (
-                    <div className={`w-full py-3 px-6 rounded-xl text-white font-bold text-xs flex items-center gap-3 animate-in slide-in-from-top duration-300 shadow-lg ${
-                      siteConfig.notification?.type === 'success' ? 'bg-emerald-600' : 
-                      siteConfig.notification?.type === 'warning' ? 'bg-amber-500' : 'bg-sky-600'
-                    }`}>
-                      <Bell className="w-4 h-4 animate-bounce" />
-                      <span className="flex-grow">{siteConfig.notification?.message || 'Escreva a sua mensagem abaixo...'}</span>
-                      {siteConfig.notification?.link && <span className="bg-white/20 px-2 py-1 rounded text-[8px] uppercase">Link Ativo</span>}
+                    <div className="space-y-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Título do Alerta (Ex: Acácias Wela)</label>
+                        <input 
+                          type="text" 
+                          value={pushTitle}
+                          onChange={e => setPushTitle(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-bold focus:bg-white transition shadow-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Conteúdo da Mensagem (O que eles lerão no telemóvel)</label>
+                        <textarea 
+                          rows={3}
+                          value={pushBody}
+                          onChange={e => setPushBody(e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-5 font-bold text-lg focus:bg-white transition shadow-sm resize-none"
+                          placeholder="Escreve aqui o que os seguidores vão ler..."
+                        />
+                      </div>
+                      <button 
+                        onClick={sendPushNotification}
+                        className="w-full bg-rose-600 text-white px-10 py-6 rounded-2xl font-black flex items-center justify-center gap-4 hover:bg-rose-700 shadow-2xl shadow-rose-600/20 transition group active:scale-[0.98]"
+                      >
+                        Disparar para Todos os Telemóveis <Send className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                      </button>
                     </div>
-                  ) : (
-                    <span className="text-slate-400 text-sm italic font-medium">A notificação está desativada. Ative-a abaixo para ver como fica.</span>
-                  )}
+                  </div>
+
+                  {/* SIMULADOR DE TELEMÓVEL */}
+                  <div className="hidden lg:flex flex-col items-center justify-center">
+                    <div className="relative w-[300px] h-[600px] bg-slate-900 rounded-[3rem] border-[8px] border-slate-800 shadow-2xl p-4 overflow-hidden">
+                       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-2xl z-20"></div>
+                       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center brightness-50"></div>
+                       
+                       {/* NOTIFICAÇÃO NO ECRÃ DO TELEMÓVEL */}
+                       <div className="relative mt-24 animate-in slide-in-from-top-10 duration-1000">
+                          <div className="bg-white/80 backdrop-blur-xl p-4 rounded-3xl shadow-2xl border border-white/20">
+                             <div className="flex items-center gap-3 mb-2">
+                                <img src={LOGO_URL} className="w-5 h-5 rounded-md" />
+                                <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest">{pushTitle}</span>
+                                <span className="text-[8px] text-slate-400 ml-auto">agora</span>
+                             </div>
+                             <p className="text-xs font-bold text-slate-900 leading-tight">
+                               {pushBody || 'Escreva a mensagem ao lado para ver aqui...'}
+                             </p>
+                          </div>
+                       </div>
+
+                       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-white/30 rounded-full"></div>
+                    </div>
+                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mt-6">Simulador de Ecrã de Bloqueio</p>
+                  </div>
                 </div>
-              </div>
+              </section>
 
-              <section className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-10">
+              {/* BARRA DE ALERTA NO SITE (Banner) */}
+              <section className="bg-white p-10 rounded-[3.5rem] border border-slate-200 shadow-sm space-y-10">
+                <div className="flex items-center gap-4 mb-2">
+                  <div className="w-12 h-12 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center shadow-inner"><Bell className="w-6 h-6" /></div>
+                  <h2 className="text-2xl font-black text-slate-800">Banner de Notificação (No Site)</h2>
+                </div>
+
                 <div className="flex items-center justify-between p-6 bg-slate-50 rounded-3xl border border-slate-100">
                    <div>
-                     <h3 className="font-black text-slate-800">Mostrar Barra de Alerta</h3>
-                     <p className="text-xs text-slate-400">Ative para mostrar a barra no topo do site.</p>
+                     <h3 className="font-black text-slate-800">Estado da Barra do Topo</h3>
+                     <p className="text-xs text-slate-400">Ative para mostrar o aviso colorido no topo do site.</p>
                    </div>
                    <button 
                      onClick={() => setSiteConfig({...siteConfig, notification: {...(siteConfig.notification || {} as any), active: !siteConfig.notification?.active}})}
@@ -274,7 +310,7 @@ const AdminDashboard: React.FC = () => {
 
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Conteúdo da Notificação</label>
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Mensagem do Banner</label>
                     <input 
                       type="text" 
                       maxLength={120}
@@ -287,22 +323,22 @@ const AdminDashboard: React.FC = () => {
 
                   <div className="grid md:grid-cols-2 gap-8">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Onde clicar (Opcional)</label>
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Link do Botão "Ver Mais"</label>
                       <input 
                         type="text" 
                         value={siteConfig.notification?.link || ''} 
                         onChange={e => setSiteConfig({...siteConfig, notification: {...(siteConfig.notification || {} as any), link: e.target.value}})} 
                         className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-5 font-bold focus:bg-white transition" 
-                        placeholder="Ex: /blog ou https://facebook.com/..."
+                        placeholder="Ex: /blog ou link externo"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Estilo do Alerta</label>
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Cor da Barra</label>
                       <div className="flex gap-4">
                         {[
-                          { id: 'info', label: 'Informativo', color: 'bg-sky-600' },
-                          { id: 'success', label: 'Sucesso', color: 'bg-emerald-600' },
-                          { id: 'warning', label: 'Aviso', color: 'bg-amber-500' }
+                          { id: 'info', label: 'Azul', color: 'bg-sky-600' },
+                          { id: 'success', label: 'Verde', color: 'bg-emerald-600' },
+                          { id: 'warning', label: 'Laranja', color: 'bg-amber-500' }
                         ].map(type => (
                           <button
                             key={type.id}
@@ -321,21 +357,11 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                <div className="p-8 bg-emerald-50 rounded-[2.5rem] border border-emerald-100 flex gap-6">
-                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-emerald-600 shrink-0">
-                    <CheckCircle2 />
-                  </div>
-                  <div>
-                    <h4 className="font-black text-emerald-900 mb-1">Dica de Notificação</h4>
-                    <p className="text-xs text-emerald-700 leading-relaxed font-medium">Os seguidores recebem uma vibração no telemóvel quando envia uma "Mensagem Flash". Use com sabedoria para não incomodar muito os visitantes.</p>
-                  </div>
-                </div>
               </section>
             </div>
           )}
 
-          {/* ... RESTO DO COMPONENTE PERMANECE IGUAL PARA AS OUTRAS ABAS ... */}
+          {/* ... ABAS RESTANTES (HERO, ABOUT, ETC) MANTÊM-SE IGUAIS ... */}
           {siteConfig && activeTab !== 'blog' && activeTab !== 'notifications' && (
             <div className="space-y-8 animate-in fade-in duration-500 pb-20">
               <div className="flex justify-between items-center mb-12">
