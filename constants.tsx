@@ -18,7 +18,7 @@ export const CONTACT_INFO = {
 };
 
 export const SOCIAL_LINKS = {
-  // Link verificado conforme solicitado
+  // Link oficial do Facebook atualizado e verificado
   facebook: 'https://www.facebook.com/profile.php?id=100066542528179'
 };
 
@@ -26,7 +26,7 @@ export const PROJECTS: Project[] = [
   {
     id: '1',
     title: 'Cursos de Férias ACÁCIAS',
-    description: 'Programas intensivos de treinamento e capacitação realizados durante o período de pausa letiva, focados em competências práticas.',
+    description: 'Programas intensivos de treinamento e capacitação realizados em Benguela durante o período de pausa letiva, focados em competências práticas.',
     image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=800',
     impact: 'Capacitação Intensiva'
   },
@@ -40,7 +40,7 @@ export const PROJECTS: Project[] = [
   {
     id: '3',
     title: 'Feiras Culturais',
-    description: 'Eventos que dão abertura a novos talentos, permitindo que jovens desenvolvam suas artes e as apresentem à comunidade.',
+    description: 'Eventos que dão abertura a novos talentos em Benguela, permitindo que jovens desenvolvam suas artes e as apresentem à comunidade.',
     image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=800',
     impact: 'Arte e Cultura'
   }

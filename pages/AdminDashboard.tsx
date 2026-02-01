@@ -45,11 +45,11 @@ const AdminDashboard: React.FC = () => {
       ]);
       setPosts(allPosts);
       setSiteConfig(config || {
-        hero: { title: 'Acácias Wela', subtitle: 'Elevando o potencial da juventude', imageUrl: '', badge: 'Capacitação Profissional' },
+        hero: { title: 'Acácias Wela', subtitle: 'Elevando o potencial da juventude de Benguela', imageUrl: '', badge: 'Benguela • Angola' },
         about: { 
           title: 'Quem Somos', 
-          text: '', 
-          missionQuote: '', 
+          text: 'O Acácias Wela é um projeto juvenil focado no treinamento profissional e pessoal, sediado em Benguela.', 
+          missionQuote: 'Pretendemos continuar a crescer em todas as áreas.', 
           founders: [
             { name: 'Emília Wandessa', role: 'Cofundadora' },
             { name: 'Ana Binga', role: 'Cofundadora' },
@@ -183,20 +183,20 @@ const AdminDashboard: React.FC = () => {
           {activeTab === 'site' && siteConfig && (
             <div className="space-y-12 pb-24 animate-in fade-in duration-500">
                <div className="flex justify-between items-center mb-12">
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Conteúdo do Site</h1>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Configuração de Benguela</h1>
                 <button onClick={handleSaveConfig} disabled={submitting} className="bg-sky-600 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 hover:bg-sky-700 shadow-xl disabled:opacity-50 transition">
                   {submitting ? <Loader2 className="animate-spin" /> : <Save />} Guardar Site
                 </button>
               </div>
               <section className="bg-white p-8 md:p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-10">
-                <h3 className="text-xl font-black flex items-center gap-3 text-slate-800">Contactos Atuais</h3>
+                <h3 className="text-xl font-black flex items-center gap-3 text-slate-800">Dados da Instituição</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                    <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">WhatsApp / Telefone</label>
                       <input type="text" value={siteConfig.contact.phone} onChange={e => setSiteConfig({...siteConfig, contact: {...siteConfig.contact, phone: e.target.value}})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-bold" />
                    </div>
                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Localização (Cidade)</label>
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Localização Ativa</label>
                       <input type="text" value={siteConfig.contact.location} onChange={e => setSiteConfig({...siteConfig, contact: {...siteConfig.contact, location: e.target.value}})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-bold" />
                    </div>
                 </div>
@@ -211,7 +211,7 @@ const AdminDashboard: React.FC = () => {
         <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-[100] flex items-center justify-center p-0 md:p-6 animate-in fade-in duration-300">
           <div className="bg-white w-full max-w-5xl h-full md:max-h-[90vh] md:rounded-[4rem] shadow-2xl flex flex-col overflow-hidden">
              <header className="p-6 md:p-10 border-b flex justify-between items-center bg-slate-50">
-               <h3 className="text-2xl font-black text-slate-900 tracking-tight">Novo Post</h3>
+               <h3 className="text-2xl font-black text-slate-900 tracking-tight">Publicar em Benguela</h3>
                <button onClick={() => setIsEditorOpen(false)} className="p-4 bg-white border rounded-2xl hover:bg-slate-100 transition"><X /></button>
              </header>
              
@@ -224,7 +224,7 @@ const AdminDashboard: React.FC = () => {
                     <select value={blogData.category} onChange={e => setBlogData({...blogData, category: e.target.value})} className="w-full bg-slate-50 px-8 py-5 rounded-2xl font-bold border-none ring-1 ring-slate-200 outline-none">
                       <option>Impacto Social</option>
                       <option>Cursos Acácias</option>
-                      <option>Notícias</option>
+                      <option>Notícias Benguela</option>
                     </select>
                   </div>
                   <div className="space-y-4">
@@ -243,7 +243,7 @@ const AdminDashboard: React.FC = () => {
 
                 <div className="space-y-8 p-10 bg-slate-50 rounded-[3rem] border border-slate-200">
                   <div className="flex justify-between items-center">
-                    <h4 className="text-xl font-black text-slate-900 flex items-center gap-3"><ImageIcon className="text-emerald-500" /> Galeria Extra</h4>
+                    <h4 className="text-xl font-black text-slate-900 flex items-center gap-3"><ImageIcon className="text-emerald-500" /> Galeria Benguela</h4>
                     <label className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center gap-2 cursor-pointer hover:bg-emerald-600 transition">
                        <Plus className="w-4 h-4" /> Adicionar
                        <input type="file" className="hidden" accept="image/*" multiple onChange={addImagesToGallery} />

@@ -23,8 +23,8 @@ const About: React.FC = () => {
 
   const aboutData = config?.about || {
     title: 'Quem Somos',
-    text: 'O Acácias Wela é um projeto juvenil focado no treinamento profissional e pessoal, criado oficialmente no dia 8 de Março de 2020.',
-    missionQuote: 'Pretendemos continuar a crescer em todas as áreas.',
+    text: 'O Acácias Wela é um projeto juvenil focado no treinamento profissional e pessoal, sediado em Benguela e criado oficialmente no dia 8 de Março de 2020.',
+    missionQuote: 'Pretendemos continuar a crescer em todas as áreas, elevando o nome de Benguela e o potencial de Angola.',
     founders: [
       { name: 'Emília Wandessa', role: 'Cofundadora' },
       { name: 'Ana Binga', role: 'Cofundadora' },
@@ -41,7 +41,7 @@ const About: React.FC = () => {
            <div className="absolute bottom-0 right-0 w-96 h-96 bg-sky-500 rounded-full blur-[120px] translate-x-1/2 translate-y-1/2"></div>
         </div>
         <div className="max-w-4xl mx-auto px-4 relative z-10">
-          <h1 className="text-6xl md:text-7xl font-black text-white mb-8 tracking-tighter">Nossa História</h1>
+          <h1 className="text-6xl md:text-7xl font-black text-white mb-8 tracking-tighter">Nossa História em Benguela</h1>
           <p className="text-slate-400 text-xl font-medium max-w-2xl mx-auto">Uma jornada de capacitação e impacto dedicada à juventude angolana.</p>
         </div>
       </section>
