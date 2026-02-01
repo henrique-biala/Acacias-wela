@@ -3,7 +3,6 @@
 import * as firebaseApp from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
 
 /**
  * CONFIGURAÇÃO REAL DO FIREBASE - ACACIAS WELA
@@ -36,5 +35,5 @@ if (!apps.length) {
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
+// Storage removido para evitar cobranças
 export default app;
