@@ -48,7 +48,9 @@ const AdminDashboard: React.FC = () => {
           title: 'Acácias Wela', 
           subtitle: 'Transformando o futuro da juventude de Benguela através da capacitação prática.', 
           imageUrl: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&q=80&w=2000', 
-          badge: 'Benguela • Angola' 
+          badge: 'Benguela • Angola',
+          homeTitle: 'Potencializando Jovens Angolanos',
+          homeBio: 'Fundado em Benguela por Emília Wandessa, o Acácias Wela nasceu para dar voz e ferramentas reais para a juventude local.'
         },
         about: { 
           title: 'Quem Somos', 
@@ -62,7 +64,7 @@ const AdminDashboard: React.FC = () => {
         },
         contact: {
           ...CONTACT_INFO,
-          facebook: SOCIAL_LINKS.facebook // Adicionado para edição total
+          facebook: SOCIAL_LINKS.facebook
         } as any,
         projects: DEFAULT_PROJECTS
       };
@@ -86,7 +88,7 @@ const AdminDashboard: React.FC = () => {
       await siteService.saveConfig(siteConfig);
       alert('Tudo pronto! O site foi atualizado com sucesso.');
     } catch (err) {
-      alert('Erro ao guardar configurações no banco de dados.');
+      alert('Erro ao guardar configurações.');
     } finally {
       setSubmitting(false);
     }
@@ -105,7 +107,7 @@ const AdminDashboard: React.FC = () => {
       setBlogData({ title: '', category: 'Impacto Social', author: 'Equipe Acácias' });
       fetchData();
     } catch (err) {
-      alert('Erro ao publicar post. Verifique o tamanho das imagens.');
+      alert('Erro ao publicar post.');
     } finally {
       setSubmitting(false);
     }
@@ -119,7 +121,6 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-100 overflow-hidden font-sans">
-      {/* Sidebar de Gestão Total */}
       <aside className="w-20 md:w-72 bg-slate-900 text-white flex flex-col shrink-0">
         <div className="p-8 border-b border-white/5">
           <h2 className="hidden md:block text-xl font-black text-emerald-400">ADMIN WELA</h2>
@@ -153,7 +154,6 @@ const AdminDashboard: React.FC = () => {
 
       <main className="flex-grow overflow-y-auto p-4 md:p-12 no-scrollbar bg-slate-50">
         <div className="max-w-5xl mx-auto">
-          {/* ABA BLOG */}
           {activeTab === 'blog' && (
             <div className="animate-in fade-in duration-500">
               <div className="flex justify-between items-center mb-12">
@@ -175,7 +175,6 @@ const AdminDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* ABAS DE CONTEÚDO EDITÁVEL */}
           {siteConfig && activeTab !== 'blog' && (
             <div className="space-y-8 animate-in fade-in duration-500 pb-20">
               <div className="flex justify-between items-center mb-12">
@@ -185,24 +184,36 @@ const AdminDashboard: React.FC = () => {
                 </button>
               </div>
 
-              {/* HERO */}
               {activeTab === 'hero' && (
                 <section className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-8">
                   <div className="grid grid-cols-1 gap-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Título do Banner</label>
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Título do Banner Principal</label>
                       <input type="text" value={siteConfig.hero.title} onChange={e => setSiteConfig({...siteConfig, hero: {...siteConfig.hero, title: e.target.value}})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-bold" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Subtítulo</label>
-                      <textarea value={siteConfig.hero.subtitle} onChange={e => setSiteConfig({...siteConfig, hero: {...siteConfig.hero, subtitle: e.target.value}})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-bold h-32" />
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Subtítulo do Banner</label>
+                      <textarea value={siteConfig.hero.subtitle} onChange={e => setSiteConfig({...siteConfig, hero: {...siteConfig.hero, subtitle: e.target.value}})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-bold h-24" />
+                    </div>
+                    
+                    <hr className="border-slate-100" />
+                    <h4 className="text-xs font-black text-emerald-600 uppercase tracking-widest ml-2">Biografia Curta (Abaixo do Banner)</h4>
+                    
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Título da Bio Home</label>
+                      <input type="text" value={siteConfig.hero.homeTitle || ''} onChange={e => setSiteConfig({...siteConfig, hero: {...siteConfig.hero, homeTitle: e.target.value}})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-bold" placeholder="Ex: Potencializando Jovens..." />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Foto de Fundo</label>
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Texto da Bio Home</label>
+                      <textarea value={siteConfig.hero.homeBio || ''} onChange={e => setSiteConfig({...siteConfig, hero: {...siteConfig.hero, homeBio: e.target.value}})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-bold h-32" placeholder="Ex: Fundado em Benguela por..." />
+                    </div>
+
+                    <div className="space-y-2 pt-4">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Foto de Fundo do Banner</label>
                       <div className="flex items-center gap-4">
                         <img src={siteConfig.hero.imageUrl} className="w-24 h-16 rounded-xl object-cover bg-slate-100" />
                         <label className="flex-1 bg-emerald-50 text-emerald-700 p-4 rounded-xl border border-dashed border-emerald-200 text-center cursor-pointer font-bold text-xs">
-                          Trocar Foto do Banner
+                          Escolher Nova Imagem da Galeria
                           <input type="file" className="hidden" accept="image/*" onChange={async e => {
                             if(e.target.files?.[0]) {
                               const b64 = await handleMediaUpload(e.target.files[0]);
@@ -216,25 +227,24 @@ const AdminDashboard: React.FC = () => {
                 </section>
               )}
 
-              {/* SOBRE */}
               {activeTab === 'about' && (
                 <section className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-10">
                   <div className="space-y-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">História (Quem Somos)</label>
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">História Completa (Página Sobre)</label>
                       <textarea value={siteConfig.about.text} onChange={e => setSiteConfig({...siteConfig, about: {...siteConfig.about, text: e.target.value}})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-bold h-64" />
                     </div>
                     
                     <div className="space-y-4">
-                       <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Fundadores</label>
+                       <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Gestão de Fundadores</label>
                        <div className="grid grid-cols-1 gap-4">
                           {siteConfig.about.founders.map((f, i) => (
                             <div key={i} className="flex flex-col md:flex-row gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-100 items-center">
-                               <div className="relative group w-20 h-20">
+                               <div className="relative group w-20 h-20 shrink-0">
                                  <img src={f.imageUrl || `https://ui-avatars.com/api/?name=${f.name}`} className="w-full h-full rounded-full object-cover border-2 border-white shadow-md" />
                                  <label className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition">
                                     <Camera className="text-white w-4 h-4" />
-                                    <input type="file" className="hidden" onChange={async e => {
+                                    <input type="file" className="hidden" accept="image/*" onChange={async e => {
                                       if(e.target.files?.[0]) {
                                         const b64 = await handleMediaUpload(e.target.files[0], true);
                                         const newF = [...siteConfig.about.founders];
@@ -262,24 +272,23 @@ const AdminDashboard: React.FC = () => {
                 </section>
               )}
 
-              {/* CONTACTOS */}
               {activeTab === 'contact' && (
                 <section className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">E-mail</label>
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">E-mail Público</label>
                       <input type="email" value={siteConfig.contact.email} onChange={e => setSiteConfig({...siteConfig, contact: {...siteConfig.contact, email: e.target.value}})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-bold" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">WhatsApp</label>
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">WhatsApp / Contacto</label>
                       <input type="text" value={siteConfig.contact.phone} onChange={e => setSiteConfig({...siteConfig, contact: {...siteConfig.contact, phone: e.target.value}})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-bold" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Localização</label>
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Localização (Benguela)</label>
                       <input type="text" value={siteConfig.contact.location} onChange={e => setSiteConfig({...siteConfig, contact: {...siteConfig.contact, location: e.target.value}})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 font-bold" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Link Facebook</label>
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Link Oficial Facebook</label>
                       <div className="relative">
                         <Facebook className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-sky-600" />
                         <input type="text" value={(siteConfig.contact as any).facebook || ''} onChange={e => setSiteConfig({...siteConfig, contact: {...siteConfig.contact, facebook: e.target.value} as any})} className="w-full bg-slate-50 border border-slate-100 rounded-2xl pl-12 pr-6 py-4 font-bold" />
@@ -289,7 +298,6 @@ const AdminDashboard: React.FC = () => {
                 </section>
               )}
 
-              {/* PROJETOS */}
               {activeTab === 'projects' && (
                 <section className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-8">
                   <div className="flex justify-between items-center">
@@ -302,25 +310,25 @@ const AdminDashboard: React.FC = () => {
                   <div className="grid grid-cols-1 gap-6">
                     {siteConfig.projects.map((proj, idx) => (
                       <div key={proj.id} className="p-8 bg-slate-50 rounded-[2rem] border border-slate-200 relative group">
-                        <button onClick={() => setSiteConfig({...siteConfig, projects: siteConfig.projects.filter((_, i) => i !== idx)})} className="absolute top-4 right-4 text-red-400 hover:text-red-600"><Trash2 /></button>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button onClick={() => setSiteConfig({...siteConfig, projects: siteConfig.projects.filter((_, i) => i !== idx)})} className="absolute top-4 right-4 text-red-400 hover:text-red-600 transition"><Trash2 /></button>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                            <div className="space-y-4">
                               <input type="text" value={proj.title} onChange={e => {
                                 const newP = [...siteConfig.projects];
                                 newP[idx].title = e.target.value;
                                 setSiteConfig({...siteConfig, projects: newP});
-                              }} className="w-full bg-white rounded-xl px-4 py-2 font-bold" placeholder="Título" />
+                              }} className="w-full bg-white rounded-xl px-4 py-2 font-bold" placeholder="Título do Projeto" />
                               <textarea value={proj.description} onChange={e => {
                                 const newP = [...siteConfig.projects];
                                 newP[idx].description = e.target.value;
                                 setSiteConfig({...siteConfig, projects: newP});
-                              }} className="w-full bg-white rounded-xl px-4 py-2 font-medium h-24" placeholder="Descrição" />
+                              }} className="w-full bg-white rounded-xl px-4 py-2 font-medium h-24" placeholder="Descrição curta" />
                            </div>
-                           <div className="flex flex-col items-center justify-center p-4 bg-white rounded-2xl border-2 border-dashed border-slate-200">
-                             {proj.image ? <img src={proj.image} className="h-32 w-full object-cover rounded-xl mb-2" /> : <ImageIcon className="text-slate-200 w-12 h-12" />}
-                             <label className="text-[10px] font-black text-emerald-600 uppercase tracking-widest cursor-pointer">
-                               Carregar Foto do Projeto
-                               <input type="file" className="hidden" onChange={async e => {
+                           <div className="flex flex-col items-center justify-center p-6 bg-white rounded-2xl border-2 border-dashed border-slate-200 relative overflow-hidden group/img">
+                             {proj.image ? <img src={proj.image} className="h-32 w-full object-cover rounded-xl" /> : <ImageIcon className="text-slate-200 w-12 h-12" />}
+                             <label className="mt-4 text-[10px] font-black text-emerald-600 uppercase tracking-widest cursor-pointer hover:underline">
+                               Trocar Foto do Projeto
+                               <input type="file" className="hidden" accept="image/*" onChange={async e => {
                                  if(e.target.files?.[0]) {
                                    const b64 = await handleMediaUpload(e.target.files[0], true);
                                    const newP = [...siteConfig.projects];
@@ -341,17 +349,16 @@ const AdminDashboard: React.FC = () => {
         </div>
       </main>
 
-      {/* MODAL NOVO POST */}
       {isEditorOpen && (
-        <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-[100] flex items-center justify-center p-0 md:p-6 animate-in fade-in">
+        <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-[100] flex items-center justify-center p-0 md:p-6 animate-in fade-in duration-300">
           <div className="bg-white w-full max-w-5xl h-full md:max-h-[90vh] md:rounded-[4rem] shadow-2xl flex flex-col overflow-hidden">
              <header className="p-10 border-b flex justify-between items-center bg-slate-50">
-               <h3 className="text-2xl font-black text-slate-900">Novo Post / Evento</h3>
+               <h3 className="text-2xl font-black text-slate-900">Novo Post ou Evento</h3>
                <button onClick={() => setIsEditorOpen(false)} className="p-4 bg-white border rounded-2xl hover:bg-slate-100 transition"><X /></button>
              </header>
              
              <div className="flex-grow overflow-y-auto p-16 space-y-12 no-scrollbar">
-                <input type="text" placeholder="Título do Post" value={blogData.title} onChange={e => setBlogData({...blogData, title: e.target.value})} className="text-5xl font-black w-full outline-none border-none placeholder:text-slate-200" />
+                <input type="text" placeholder="Título chamativo" value={blogData.title} onChange={e => setBlogData({...blogData, title: e.target.value})} className="text-5xl font-black w-full outline-none border-none placeholder:text-slate-200" />
                 
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-4">
@@ -363,9 +370,9 @@ const AdminDashboard: React.FC = () => {
                     </select>
                   </div>
                   <div className="space-y-4">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest block">Mídia Principal (Foto/Vídeo)</label>
-                    <label className="flex items-center justify-center gap-4 px-8 py-5 bg-emerald-50 text-emerald-700 rounded-2xl border border-dashed border-emerald-200 cursor-pointer">
-                      <Camera /> <span className="font-black text-xs uppercase">{blogImage ? 'Mídia Pronta' : 'Abrir Galeria do Celular'}</span>
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest block">Foto de Capa</label>
+                    <label className="flex items-center justify-center gap-4 px-8 py-5 bg-emerald-50 text-emerald-700 rounded-2xl border border-dashed border-emerald-200 cursor-pointer hover:bg-emerald-100 transition">
+                      <Camera /> <span className="font-black text-xs uppercase tracking-widest">{blogImage ? 'Mídia Escolhida' : 'Abrir Galeria do Celular'}</span>
                       <input type="file" className="hidden" accept="image/*" onChange={e => setBlogImage(e.target.files?.[0] || null)} />
                     </label>
                   </div>
@@ -375,7 +382,7 @@ const AdminDashboard: React.FC = () => {
                   <div className="flex justify-between items-center">
                     <h4 className="text-xl font-black text-slate-900 flex items-center gap-3"><ImageIcon className="text-emerald-500" /> Fotos Extras do Evento</h4>
                     <label className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer hover:bg-emerald-600 transition">
-                       <Plus className="w-4 h-4" /> Adicionar da Galeria
+                       <Plus className="w-4 h-4" /> Adicionar Fotos
                        <input type="file" className="hidden" accept="image/*" multiple onChange={e => {
                          if(e.target.files) setBlogGallery([...blogGallery, ...Array.from(e.target.files)]);
                        }} />
@@ -385,21 +392,21 @@ const AdminDashboard: React.FC = () => {
                     {blogGallery.map((file, idx) => (
                       <div key={idx} className="relative aspect-square rounded-2xl overflow-hidden shadow-md">
                         <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
-                        <button onClick={() => setBlogGallery(blogGallery.filter((_, i) => i !== idx))} className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                        <button onClick={() => setBlogGallery(blogGallery.filter((_, i) => i !== idx))} className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-lg transition hover:scale-110"><Trash2 className="w-4 h-4" /></button>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest block">Texto Completo</label>
+                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest block">Conteúdo Detalhado</label>
                   <div ref={editorRef} contentEditable className="outline-none text-xl leading-relaxed text-slate-600 min-h-[300px] bg-slate-50/50 p-8 rounded-3xl border border-slate-100" />
                 </div>
              </div>
 
              <footer className="p-10 border-t flex justify-end gap-4 bg-slate-50">
                 <button onClick={() => setIsEditorOpen(false)} className="px-10 py-5 font-black text-slate-400 uppercase text-xs">Descartar</button>
-                <button onClick={handleCreatePost} disabled={submitting} className="bg-emerald-600 text-white px-16 py-5 rounded-2xl font-black shadow-2xl flex items-center justify-center gap-4 transition">
+                <button onClick={handleCreatePost} disabled={submitting} className="bg-emerald-600 text-white px-16 py-5 rounded-2xl font-black shadow-2xl flex items-center justify-center gap-4 transition hover:bg-emerald-700">
                   {submitting ? <Loader2 className="animate-spin" /> : 'Publicar Agora'}
                 </button>
              </footer>

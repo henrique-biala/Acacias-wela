@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import * as ReactRouterDom from 'react-router-dom';
-import { ArrowRight, Users, Zap, Award, Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { postService } from '../services/postService';
 import { siteService } from '../services/siteService';
 import { Post, SiteConfig } from '../types';
@@ -41,11 +41,14 @@ const Home: React.FC = () => {
     title: 'Acácias Wela',
     subtitle: 'Transformando o futuro da juventude de Benguela através da capacitação prática.',
     imageUrl: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?auto=format&fit=crop&q=80&w=2000',
-    badge: 'Benguela • Angola'
+    badge: 'Benguela • Angola',
+    homeTitle: 'Potencializando Jovens Angolanos',
+    homeBio: 'Fundado em Benguela por Emília Wandessa, o Acácias Wela nasceu para dar voz e ferramentas reais para a juventude local.'
   };
 
   return (
     <div className="flex flex-col w-full">
+      {/* Banner Principal */}
       <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden py-24">
         <div className="absolute inset-0 z-0">
           <img 
@@ -71,22 +74,23 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* Biografia Dinâmica na Home */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div>
+            <div className="animate-in fade-in slide-in-from-left duration-700">
               <div className="bg-emerald-50 text-emerald-600 font-black text-[10px] uppercase tracking-[0.3em] py-1 px-4 rounded-full inline-block mb-6">Nossa Origem</div>
               <h2 className="text-4xl md:text-5xl font-black mb-8 text-slate-900 leading-tight">
-                Potencializando Jovens Angolanos
+                {hero.homeTitle || 'Potencializando Jovens Angolanos'}
               </h2>
               <p className="text-slate-500 text-lg mb-8 leading-relaxed font-medium">
-                {config?.about.text || "Fundado em Benguela por Emília Wandessa, o Acácias Wela nasceu para dar voz e ferramentas reais para a juventude local."}
+                {hero.homeBio || "Fundado em Benguela por Emília Wandessa, o Acácias Wela nasceu para dar voz e ferramentas reais para a juventude local."}
               </p>
               <Link to="/sobre" className="text-emerald-600 font-bold flex items-center gap-3 hover:gap-5 transition-all text-sm uppercase tracking-widest">
                 Biografia Completa <ArrowRight className="w-5 h-5" />
               </Link>
             </div>
-            <div className="rounded-[3rem] overflow-hidden shadow-2xl aspect-[4/5]">
+            <div className="rounded-[3rem] overflow-hidden shadow-2xl aspect-[4/5] animate-in fade-in slide-in-from-right duration-700">
               <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800" className="w-full h-full object-cover" alt="Benguela" />
             </div>
           </div>

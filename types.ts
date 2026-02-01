@@ -30,6 +30,8 @@ export interface SiteConfig {
     subtitle: string;
     imageUrl: string;
     badge: string;
+    homeTitle?: string; // Novo: Título da bio na home
+    homeBio?: string;   // Novo: Texto da bio na home
   };
   about: {
     title: string;
