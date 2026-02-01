@@ -17,6 +17,33 @@ export interface Project {
   impact: string;
 }
 
+export interface Founder {
+  name: string;
+  role: string;
+  imageUrl?: string;
+}
+
+export interface SiteConfig {
+  hero: {
+    title: string;
+    subtitle: string;
+    imageUrl: string;
+    badge: string;
+  };
+  about: {
+    title: string;
+    text: string;
+    missionQuote: string;
+    founders: Founder[];
+  };
+  contact: {
+    email: string;
+    phone: string;
+    location: string;
+  };
+  projects: Project[];
+}
+
 export interface ContactForm {
   name: string;
   email: string;

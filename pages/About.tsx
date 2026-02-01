@@ -1,84 +1,109 @@
 
-import React from 'react';
-import { Calendar, Users, Heart, Target } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Calendar, Users, Heart, Target, Loader2 } from 'lucide-react';
+import { siteService } from '../services/siteService';
+import { SiteConfig } from '../types';
 
 const About: React.FC = () => {
-  const founders = [
-    { name: 'Ana Binga', role: 'Cofundadora' },
-    { name: 'Edgar Reinaldo', role: 'Cofundador' },
-    { name: 'Wandi Ernesto', role: 'Cofundador' }
-  ];
+  const [config, setConfig] = useState<SiteConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    siteService.getConfig().then(data => {
+      setConfig(data);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <Loader2 className="w-10 h-10 animate-spin text-emerald-600" />
+    </div>
+  );
+
+  const aboutData = config?.about || {
+    title: 'Quem Somos',
+    text: 'O Acácias Wela é um projeto juvenil focado no treinamento profissional e pessoal, criado oficialmente no dia 8 de Março de 2020.',
+    missionQuote: 'Pretendemos continuar a crescer em todas as áreas.',
+    founders: [
+      { name: 'Ana Binga', role: 'Cofundadora' },
+      { name: 'Edgar Reinaldo', role: 'Cofundador' },
+      { name: 'Wandi Ernesto', role: 'Cofundador' }
+    ]
+  };
 
   return (
     <div className="bg-white min-h-screen">
       {/* Banner */}
-      <section className="bg-slate-900 py-24 text-center">
-        <div className="max-w-4xl mx-auto px-4">
-          <h1 className="text-5xl font-bold text-white mb-6">Nossa História</h1>
-          <p className="text-slate-400 text-xl">Uma jornada de capacitação e impacto que começou em 2020.</p>
+      <section className="bg-slate-900 py-32 text-center relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+           <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500 rounded-full blur-[120px] -translate-x-1/2 -translate-y-1/2"></div>
+           <div className="absolute bottom-0 right-0 w-96 h-96 bg-sky-500 rounded-full blur-[120px] translate-x-1/2 translate-y-1/2"></div>
+        </div>
+        <div className="max-w-4xl mx-auto px-4 relative z-10">
+          <h1 className="text-6xl md:text-7xl font-black text-white mb-8 tracking-tighter">Nossa História</h1>
+          <p className="text-slate-400 text-xl font-medium max-w-2xl mx-auto">Uma jornada de capacitação e impacto dedicada à juventude angolana.</p>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="prose prose-lg text-slate-600 max-w-none">
-            <h2 className="text-3xl font-bold text-slate-800 mb-8">Quem Somos</h2>
-            <p className="mb-6">
-              O <strong>Acácias Wela</strong> é um projeto juvenil focado no treinamento profissional e pessoal, criado oficialmente no dia <strong>8 de Março de 2020</strong>. Nossa missão nasceu da vontade de capacitar a juventude angolana para enfrentar os desafios do mercado e da vida pessoal com excelência.
-            </p>
-            <p className="mb-6">
-              O projeto foi fundado por <strong>Ana Binga, Edgar Reinaldo e Wandi Ernesto</strong>, três visionários que acreditam que o desenvolvimento pessoal é a base para o sucesso profissional. O nosso foco principal é incentivar os jovens a empreender, a desenvolverem as suas artes e a trabalharem em seu crescimento contínuo.
-            </p>
+      <section className="py-24">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="space-y-12">
+            <header className="mb-16">
+              <div className="bg-emerald-50 text-emerald-600 font-black text-[10px] uppercase tracking-[0.4em] py-1 px-4 rounded-full inline-block mb-6">Manifesto Wela</div>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-8 tracking-tight">{aboutData.title}</h2>
+              <div className="text-slate-600 text-xl leading-relaxed font-medium space-y-6">
+                {aboutData.text.split('\n').map((para, i) => (
+                  <p key={i}>{para}</p>
+                ))}
+              </div>
+            </header>
             
-            <div className="bg-emerald-50 p-10 rounded-[2.5rem] my-12 border border-emerald-100">
-              <h3 className="text-2xl font-bold text-emerald-800 mb-6 flex items-center gap-3">
-                <Target className="w-6 h-6" /> O Que Pretendemos
+            <div className="bg-emerald-50 p-12 md:p-16 rounded-[4rem] my-20 border border-emerald-100 relative group">
+              <div className="absolute top-0 right-0 p-12 opacity-5 text-emerald-900"><Target className="w-32 h-32" /></div>
+              <h3 className="text-2xl font-black text-emerald-800 mb-8 flex items-center gap-4">
+                <Target className="w-8 h-8" /> Nossa Ambição
               </h3>
-              <p className="text-emerald-900/80 italic text-lg leading-relaxed">
-                "Pretendemos continuar a crescer em todas as áreas. Para isso, precisamos de pessoas dispostas a elevar este grande projeto ao mais alto nível e, com isso, impactar positivamente muitas vidas em nossa comunidade."
+              <p className="text-emerald-900/80 italic text-2xl md:text-3xl leading-relaxed font-bold tracking-tight">
+                "{aboutData.missionQuote}"
               </p>
             </div>
 
-            <h2 className="text-3xl font-bold text-slate-800 mb-8">Nosso Trajeto (5 Anos)</h2>
-            <p className="mb-8">
-              Nestes 5 anos de existência, o projeto Acácias Wela consolidou-se através de diversas ações práticas:
-            </p>
-            <ul className="grid md:grid-cols-2 gap-4 list-none p-0 mb-12">
-              <li className="bg-slate-50 p-6 rounded-2xl flex items-start gap-4">
-                <div className="bg-sky-100 p-2 rounded-lg text-sky-600"><Users className="w-5 h-5" /></div>
-                <div>
-                  <strong className="block text-slate-800">Palestras & Conferências</strong>
-                  Focadas em empreendedorismo e mentalidade de sucesso.
-                </div>
-              </li>
-              <li className="bg-slate-50 p-6 rounded-2xl flex items-start gap-4">
-                <div className="bg-amber-100 p-2 rounded-lg text-amber-600"><Heart className="w-5 h-5" /></div>
-                <div>
-                  <strong className="block text-slate-800">Feiras Culturais</strong>
-                  Espaço dedicado à descoberta e promoção de novos talentos artísticos.
-                </div>
-              </li>
-              <li className="bg-slate-50 p-6 rounded-2xl flex items-start gap-4">
-                <div className="bg-emerald-100 p-2 rounded-lg text-emerald-600"><Calendar className="w-5 h-5" /></div>
-                <div>
-                  <strong className="block text-slate-800">Cursos de Férias</strong>
-                  Os Cursos ACÁCIAS são referência em treinamento intensivo para jovens.
-                </div>
-              </li>
-            </ul>
-
-            <h2 className="text-3xl font-bold text-slate-800 mb-8 text-center">Fundadores</h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              {founders.map(founder => (
-                <div key={founder.name} className="text-center p-8 bg-slate-50 rounded-3xl border border-slate-100">
-                  <div className="w-24 h-24 bg-slate-200 rounded-full mx-auto mb-4 overflow-hidden">
-                    <img src={`https://ui-avatars.com/api/?name=${founder.name}&background=10b981&color=fff`} alt={founder.name} />
+            <div className="space-y-12">
+               <h2 className="text-4xl font-black text-slate-900 text-center mb-16">Os Rostos por Trás do Projeto</h2>
+               <div className="grid md:grid-cols-3 gap-10">
+                {aboutData.founders.map((founder, idx) => (
+                  <div key={idx} className="text-center group">
+                    <div className="w-48 h-48 rounded-[3rem] mx-auto mb-8 overflow-hidden border-4 border-slate-50 shadow-xl shadow-slate-200 group-hover:scale-105 transition duration-500">
+                      <img 
+                        src={founder.imageUrl || `https://ui-avatars.com/api/?name=${founder.name}&background=10b981&color=fff`} 
+                        alt={founder.name} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <h4 className="font-black text-slate-900 text-2xl mb-2">{founder.name}</h4>
+                    <p className="text-emerald-600 font-black text-[10px] uppercase tracking-[0.2em]">{founder.role}</p>
                   </div>
-                  <h4 className="font-bold text-slate-800 text-lg">{founder.name}</h4>
-                  <p className="text-emerald-600 font-bold text-sm uppercase tracking-widest">{founder.role}</p>
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-24 mt-24 border-t border-slate-100">
+              <h3 className="text-3xl font-black text-slate-900 mb-12 text-center">Nosso Legado em Números</h3>
+              <div className="grid md:grid-cols-3 gap-8">
+                 {[
+                   { icon: Calendar, label: "Anos de Impacto", val: "5+" },
+                   { icon: Users, label: "Jovens Capacitados", val: "2000+" },
+                   { icon: Heart, label: "Projetos Ativos", val: "12" }
+                 ].map((stat, i) => (
+                   <div key={i} className="bg-slate-50 p-10 rounded-[2.5rem] text-center border border-slate-100">
+                     <stat.icon className="w-8 h-8 text-emerald-600 mx-auto mb-4" />
+                     <div className="text-4xl font-black text-slate-900 mb-2">{stat.val}</div>
+                     <div className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{stat.label}</div>
+                   </div>
+                 ))}
+              </div>
             </div>
           </div>
         </div>

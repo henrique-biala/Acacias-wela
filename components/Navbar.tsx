@@ -1,8 +1,11 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+// Fix: Use namespace import for react-router-dom to resolve named export errors
+import * as ReactRouterDom from 'react-router-dom';
 import { Menu, X, TreeDeciduous } from 'lucide-react';
 import { LOGO_URL } from '../constants';
+
+const { Link, useLocation } = ReactRouterDom;
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);

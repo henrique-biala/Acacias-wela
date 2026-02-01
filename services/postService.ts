@@ -12,6 +12,7 @@ import {
   limit, 
   serverTimestamp 
 } from 'firebase/firestore';
+// Fix: Use direct named imports from firebase/storage to resolve export resolution errors
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { Post } from '../types';
