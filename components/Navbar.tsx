@@ -25,10 +25,10 @@ const Navbar: React.FC = () => {
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20 md:h-24">
+        <div className="flex justify-between h-16 md:h-24">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-3 group">
-              <div className="h-14 md:h-16 w-auto flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+            <Link to="/" className="flex items-center gap-2 md:gap-3 group">
+              <div className="h-10 md:h-16 w-auto flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
                 {!imgError ? (
                   <img 
                     src={LOGO_URL} 
@@ -38,15 +38,15 @@ const Navbar: React.FC = () => {
                   />
                 ) : (
                   <div className="bg-emerald-50 p-2 rounded-xl">
-                    <TreeDeciduous className="w-6 h-6 md:w-8 md:h-8 text-emerald-600" />
+                    <TreeDeciduous className="w-5 h-5 md:w-8 md:h-8 text-emerald-600" />
                   </div>
                 )}
               </div>
-              <div className="flex flex-col border-l border-slate-100 pl-3">
-                <span className="text-lg md:text-xl font-bold text-slate-800 tracking-tight leading-none">
+              <div className="flex flex-col border-l border-slate-100 pl-2 md:pl-3">
+                <span className="text-sm md:text-xl font-bold text-slate-800 tracking-tight leading-none">
                   Acacias <span className="text-emerald-600 font-extrabold">Wela</span>
                 </span>
-                <span className="text-[8px] md:text-[10px] text-slate-400 uppercase tracking-[0.15em] font-bold mt-1">Capacitação Juvenil</span>
+                <span className="text-[6px] md:text-[10px] text-slate-400 uppercase tracking-[0.15em] font-bold mt-0.5 md:mt-1">Capacitação Juvenil</span>
               </div>
             </Link>
           </div>
@@ -78,7 +78,7 @@ const Navbar: React.FC = () => {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-slate-600 hover:text-emerald-600 p-2"
+              className="text-slate-600 hover:text-emerald-600 p-2 bg-slate-50 rounded-xl"
               aria-label="Menu"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -89,18 +89,18 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-white border-t border-slate-100 animate-in fade-in slide-in-from-top-4 duration-200 shadow-xl">
-          <div className="px-4 pt-2 pb-6 space-y-1">
+        <div className="md:hidden bg-white border-t border-slate-100 animate-in fade-in slide-in-from-top-4 duration-300 shadow-2xl">
+          <div className="px-6 py-8 space-y-4">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
                 onClick={() => setIsOpen(false)}
-                className={`block px-4 py-4 text-base font-bold rounded-xl ${
+                className={`block px-5 py-4 text-lg font-black rounded-2xl ${
                   isActive(link.path)
-                    ? 'bg-emerald-50 text-emerald-600'
+                    ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-600/20'
                     : 'text-slate-600 hover:bg-slate-50'
-                }`}
+                } transition-all`}
               >
                 {link.name}
               </Link>
@@ -108,9 +108,9 @@ const Navbar: React.FC = () => {
             <Link
               to="/login"
               onClick={() => setIsOpen(false)}
-              className="block px-4 py-4 text-base font-bold text-sky-600 border-t border-slate-50"
+              className="block px-5 py-4 text-lg font-black text-sky-600 bg-sky-50 rounded-2xl border border-sky-100"
             >
-              Painel Administrativo
+              Painel Admin
             </Link>
           </div>
         </div>

@@ -4,7 +4,7 @@ export interface Post {
   title: string;
   content: string;
   imageUrl: string;
-  gallery?: string[]; // Array de strings Base64 para fotos extras
+  gallery?: string[]; // Array de strings Base64 (pode conter imagens ou vídeos)
   category: string;
   createdAt: any;
   author: string;
@@ -30,8 +30,8 @@ export interface SiteConfig {
     subtitle: string;
     imageUrl: string;
     badge: string;
-    homeTitle?: string; // Novo: Título da bio na home
-    homeBio?: string;   // Novo: Texto da bio na home
+    homeTitle?: string;
+    homeBio?: string;
   };
   about: {
     title: string;
