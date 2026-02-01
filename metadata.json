@@ -1,0 +1,7 @@
+{
+  "name": "Acacias Wela - Impacto Social",
+  "description": "Uma plataforma institucional e de gestão de conteúdo para o projeto social Acacias Wela, focada em transparência, notícias e mobilização comunitária.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
