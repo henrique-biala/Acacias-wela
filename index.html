@@ -10,6 +10,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
         }
         h1, h2, h3 {
             font-family: 'Playfair Display', serif;
@@ -20,12 +21,14 @@
             height: auto;
             border-radius: 1.5rem;
             margin: 2rem 0;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
         }
-        .post-content iframe {
+        .post-content iframe, .post-content video {
             width: 100%;
             aspect-ratio: 16 / 9;
             border-radius: 1.5rem;
             margin: 2rem 0;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
         }
         .post-content audio {
             width: 100%;
@@ -41,12 +44,15 @@
         .post-content p {
             margin-bottom: 1.25rem;
             line-height: 1.8;
+            color: #334155;
         }
         .post-content blockquote {
             border-left: 4px solid #10b981;
-            padding-left: 1.5rem;
+            padding: 1rem 1.5rem;
             font-style: italic;
             color: #475569;
+            background-color: #f0fdf4;
+            border-radius: 0.5rem;
             margin: 2rem 0;
         }
     </style>
@@ -66,5 +72,7 @@
 </head>
 <body class="bg-slate-50 text-slate-900">
     <div id="root"></div>
+    <!-- PONTO DE ENTRADA OBRIGATÓRIO PARA EVITAR TELA BRANCA -->
+    <script type="module" src="./index.tsx"></script>
 </body>
 </html>
