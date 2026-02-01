@@ -5,7 +5,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import { siteService } from './services/siteService';
 import { LOGO_URL, SOCIAL_LINKS, CONTACT_INFO } from './constants';
-import { TreeDeciduous, Loader2, Facebook, MapPin, Phone, X, Bell, ExternalLink } from 'lucide-react';
+import { TreeDeciduous, Loader2, Facebook, MapPin, Phone, X, Bell, ExternalLink, Heart } from 'lucide-react';
 import { SiteConfig, SiteNotification } from './types';
 
 import Navbar from './components/Navbar';
@@ -53,6 +53,52 @@ const NotificationBanner = ({ notification }: { notification?: SiteNotification 
           <X className="w-4 h-4" />
         </button>
       </div>
+    </div>
+  );
+};
+
+// BOTÃO FLUTUANTE PARA SEGUIR (PUSH)
+const FollowProjectButton = () => {
+  const [status, setStatus] = useState<NotificationPermission | 'unsupported'>(
+    'default'
+  );
+
+  useEffect(() => {
+    if (!('Notification' in window)) {
+      setStatus('unsupported');
+    } else {
+      setStatus(Notification.permission);
+    }
+  }, []);
+
+  const handleFollow = async () => {
+    if (status === 'unsupported') {
+      alert('O seu navegador não suporta notificações diretas. Tente no Chrome ou Safari do telemóvel.');
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    setStatus(permission);
+
+    if (permission === 'granted') {
+      new Notification("Acácias Wela", {
+        body: "Obrigado por seguir o projeto! Receberá novidades diretamente aqui.",
+        icon: LOGO_URL
+      });
+    }
+  };
+
+  if (status === 'granted' || status === 'unsupported') return null;
+
+  return (
+    <div className="fixed bottom-6 right-6 z-[100] animate-in slide-in-from-bottom-10 duration-700">
+      <button 
+        onClick={handleFollow}
+        className="bg-slate-900 text-white px-6 py-4 rounded-full font-black text-[10px] uppercase tracking-widest flex items-center gap-3 shadow-2xl hover:bg-emerald-600 transition-all border-2 border-white/20 hover:scale-105 active:scale-95"
+      >
+        <Heart className="w-4 h-4 text-rose-500 fill-rose-500 animate-pulse" />
+        Seguir Projeto
+      </button>
     </div>
   );
 };
@@ -178,6 +224,7 @@ const AppContent = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      {!isAdminPath && <FollowProjectButton />}
       {!isAdminPath && <Footer config={siteConfig} />}
     </div>
   );
