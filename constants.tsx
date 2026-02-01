@@ -18,6 +18,7 @@ export const CONTACT_INFO = {
 };
 
 export const SOCIAL_LINKS = {
+  // Link verificado conforme solicitado
   facebook: 'https://www.facebook.com/profile.php?id=100066542528179'
 };
 

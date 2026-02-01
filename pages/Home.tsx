@@ -80,7 +80,7 @@ const Home: React.FC = () => {
                 {config?.about.title || "5 Anos Elevando o Nível da Nossa Juventude"}
               </h2>
               <p className="text-slate-500 text-lg mb-8 leading-relaxed font-medium">
-                {config?.about.text || "Fundado por Ana Binga, Edgar Reinaldo e Wandi Ernesto, o projeto nasceu para capacitar jovens angolanos."}
+                {config?.about.text || "Fundado por Emília Wandessa, Ana Binga e Edgar Reinaldo, o projeto nasceu para capacitar jovens angolanos."}
               </p>
               <Link to="/sobre" className="text-emerald-600 font-bold flex items-center gap-3 hover:gap-5 transition-all text-sm uppercase tracking-widest">
                 Ver biografia completa <ArrowRight className="w-5 h-5" />

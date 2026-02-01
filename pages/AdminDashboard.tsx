@@ -46,7 +46,16 @@ const AdminDashboard: React.FC = () => {
       setPosts(allPosts);
       setSiteConfig(config || {
         hero: { title: 'Acácias Wela', subtitle: 'Elevando o potencial da juventude', imageUrl: '', badge: 'Capacitação Profissional' },
-        about: { title: 'Quem Somos', text: '', missionQuote: '', founders: [] },
+        about: { 
+          title: 'Quem Somos', 
+          text: '', 
+          missionQuote: '', 
+          founders: [
+            { name: 'Emília Wandessa', role: 'Cofundadora' },
+            { name: 'Ana Binga', role: 'Cofundadora' },
+            { name: 'Edgar Reinaldo', role: 'Cofundador' }
+          ] 
+        },
         contact: CONTACT_INFO,
         projects: DEFAULT_PROJECTS
       });
@@ -89,7 +98,6 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // Fix: Added missing handleSaveConfig function to process site configuration updates
   const handleSaveConfig = async () => {
     if (!siteConfig) return;
     setSubmitting(true);
@@ -193,7 +201,6 @@ const AdminDashboard: React.FC = () => {
                    </div>
                 </div>
               </section>
-              {/* Outras seções de configuração simplificadas... */}
             </div>
           )}
         </div>

@@ -26,9 +26,9 @@ const About: React.FC = () => {
     text: 'O Acácias Wela é um projeto juvenil focado no treinamento profissional e pessoal, criado oficialmente no dia 8 de Março de 2020.',
     missionQuote: 'Pretendemos continuar a crescer em todas as áreas.',
     founders: [
+      { name: 'Emília Wandessa', role: 'Cofundadora' },
       { name: 'Ana Binga', role: 'Cofundadora' },
-      { name: 'Edgar Reinaldo', role: 'Cofundador' },
-      { name: 'Wandi Ernesto', role: 'Cofundador' }
+      { name: 'Edgar Reinaldo', role: 'Cofundador' }
     ]
   };
 
