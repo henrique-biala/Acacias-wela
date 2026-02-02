@@ -3,11 +3,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import * as ReactRouterDom from 'react-router-dom';
 import { 
   FileText, Plus, LogOut, Trash2, X, Globe, Users, Briefcase, 
-  Save, Camera, Loader2, Layout, Info, Phone, Bell, Send, Landmark, Quote, Facebook
+  Save, Camera, Loader2, Layout, Info, Phone, Send, Landmark, Quote, Facebook
 } from 'lucide-react';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
-import { collection, getDocs } from 'firebase/firestore';
 import { postService } from '../services/postService';
 import { siteService } from '../services/siteService';
 import { Post, SiteConfig } from '../types';
@@ -29,9 +28,7 @@ const AdminDashboard: React.FC = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => { 
-    fetchData(); 
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
     setLoading(true);
@@ -53,7 +50,7 @@ const AdminDashboard: React.FC = () => {
 
       setSiteConfig(config ? { ...defaultState, ...config } : defaultState);
     } catch (err) { 
-      console.error("Admin fetch error:", err); 
+      console.error("Erro ao carregar admin:", err); 
     } finally { 
       setLoading(false); 
     }
@@ -64,49 +61,41 @@ const AdminDashboard: React.FC = () => {
     setSubmitting(true);
     try {
       await siteService.saveConfig(siteConfig);
-      alert('Informações atualizadas com sucesso no site!');
+      alert('Informações guardadas com sucesso! O site já foi atualizado.');
     } catch (e) { 
-      alert('Erro ao guardar. Verifica a tua ligação.'); 
+      alert('Erro ao guardar as alterações. Verifica a tua ligação.'); 
     } finally { 
       setSubmitting(false); 
     }
   };
 
   const handleMediaUpload = async (file: File) => {
-    try {
-       return await postService.uploadMedia(file);
-    } catch (e) {
-       console.error("Upload error:", e);
-       return "";
-    }
+    try { return await postService.uploadMedia(file); } catch (e) { return ""; }
   };
 
   if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-slate-950">
-      <div className="text-center space-y-4">
-        <Loader2 className="animate-spin text-emerald-500 w-12 h-12 mx-auto" />
-        <p className="text-slate-500 font-black text-[10px] tracking-widest uppercase">A carregar sistemas...</p>
-      </div>
+    <div className="h-screen flex items-center justify-center bg-slate-900 flex-col gap-6">
+      <Loader2 className="animate-spin text-emerald-500 w-12 h-12" />
+      <span className="text-slate-500 font-black text-xs uppercase tracking-widest">A carregar Painel Acácias...</span>
     </div>
   );
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      {/* Sidebar Otimizada */}
       <aside className="w-20 md:w-72 bg-slate-900 text-white flex flex-col shrink-0">
-        <div className="p-8 border-b border-white/5 flex flex-col items-center md:items-start">
-           <img src={LOGO_URL} className="w-10 h-10 mb-4 bg-white p-1 rounded-lg" alt="Logo" />
-           <h2 className="hidden md:block text-emerald-400 font-black text-lg">PAINEL WELA</h2>
+        <div className="p-8 border-b border-white/5 flex flex-col items-center md:items-start gap-2">
+           <img src={LOGO_URL} className="w-10 h-10 bg-white p-1 rounded-lg" alt="Logo" />
+           <h2 className="hidden md:block text-emerald-400 font-black text-lg tracking-tight">WELA ADMIN</h2>
         </div>
         
         <nav className="flex-grow p-4 space-y-2 overflow-y-auto no-scrollbar">
           {[
-            { id: 'blog', icon: FileText, label: 'Notícias' },
-            { id: 'hero', icon: Layout, label: 'Banner Inicial' },
-            { id: 'about', icon: Info, label: 'Sobre Nós' },
-            { id: 'projects', icon: Briefcase, label: 'Projetos' },
+            { id: 'blog', icon: FileText, label: 'Notícias / Blog' },
+            { id: 'hero', icon: Layout, label: 'Banner de Entrada' },
+            { id: 'about', icon: Info, label: 'Página Sobre' },
+            { id: 'projects', icon: Briefcase, label: 'Nossos Projetos' },
             { id: 'testimonials', icon: Quote, label: 'Depoimentos' },
-            { id: 'help', icon: Landmark, label: 'Apoio/IBAN' },
+            { id: 'help', icon: Landmark, label: 'Apoio / IBAN' },
             { id: 'contact', icon: Phone, label: 'Contactos' }
           ].map(tab => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as any)} className={`w-full flex items-center justify-center md:justify-start gap-4 p-4 rounded-2xl font-bold transition-all ${activeTab === tab.id ? 'bg-emerald-600 text-white shadow-xl shadow-emerald-900/20' : 'text-slate-500 hover:bg-white/5 hover:text-white'}`}>
@@ -117,7 +106,7 @@ const AdminDashboard: React.FC = () => {
 
         <div className="p-4 border-t border-white/5">
           <button onClick={() => signOut(auth).then(() => navigate('/login'))} className="w-full flex items-center justify-center md:justify-start gap-4 p-4 text-rose-400 hover:bg-rose-500/10 rounded-2xl font-bold">
-            <LogOut size={20} /> <span className="hidden md:inline text-sm">Sair</span>
+            <LogOut size={20} /> <span className="hidden md:inline text-sm">Sair do Painel</span>
           </button>
         </div>
       </aside>
@@ -127,10 +116,10 @@ const AdminDashboard: React.FC = () => {
           
           {/* Aba Blog */}
           {activeTab === 'blog' && (
-             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
+             <div className="animate-in fade-in duration-500 space-y-8">
                 <div className="flex justify-between items-center">
-                   <h1 className="text-4xl font-black text-slate-900">Notícias</h1>
-                   <button onClick={() => setIsEditorOpen(true)} className="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-black shadow-lg">Novo Post</button>
+                   <h1 className="text-4xl font-black text-slate-900 tracking-tight">Publicações</h1>
+                   <button onClick={() => setIsEditorOpen(true)} className="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-black shadow-lg hover:scale-105 active:scale-95 transition-all">Novo Artigo</button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                    {posts.map(p => (
@@ -140,36 +129,41 @@ const AdminDashboard: React.FC = () => {
                            <h3 className="font-bold text-slate-800 truncate">{p.title}</h3>
                            <p className="text-[10px] font-black uppercase text-emerald-600">{p.category}</p>
                         </div>
-                        <button onClick={() => p.id && confirm('Eliminar?') && postService.deletePost(p.id).then(fetchData)} className="p-3 text-rose-400 hover:bg-rose-50 rounded-xl transition">
-                           <Trash2 size={20} />
-                        </button>
+                        <button onClick={() => p.id && confirm('Eliminar este post definitivamente?') && postService.deletePost(p.id).then(fetchData)} className="p-3 text-rose-400 hover:bg-rose-50 rounded-xl transition"><Trash2 size={20} /></button>
                      </div>
                    ))}
+                   {posts.length === 0 && <p className="col-span-2 text-center text-slate-400 py-10">Nenhuma notícia publicada ainda.</p>}
                 </div>
              </div>
           )}
 
-          {/* Outras Abas (Ex: Hero, Testimonials) */}
+          {/* Abas Dinâmicas de Configuração (Hero, About, etc) */}
           {activeTab !== 'blog' && siteConfig && (
             <div className="animate-in fade-in duration-500 space-y-8">
                <div className="flex justify-between items-end">
-                  <h1 className="text-4xl font-black text-slate-900 capitalize">{activeTab.replace('_', ' ')}</h1>
-                  <button onClick={handleSaveConfig} disabled={submitting} className="bg-emerald-600 text-white px-8 py-4 rounded-2xl font-black shadow-lg flex items-center gap-2">
-                    {submitting ? <Loader2 className="animate-spin" /> : <Save size={20} />} Guardar Alterações
+                  <h1 className="text-4xl font-black text-slate-900 capitalize tracking-tight">Editar {activeTab}</h1>
+                  <button onClick={handleSaveConfig} disabled={submitting} className="bg-emerald-600 text-white px-10 py-5 rounded-[1.5rem] font-black shadow-lg flex items-center gap-3 hover:bg-emerald-700 transition-all">
+                    {submitting ? <Loader2 className="animate-spin" /> : <Save size={20} />} Guardar Tudo
                   </button>
                </div>
 
                {activeTab === 'hero' && (
                  <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border border-slate-200 space-y-8">
-                    <input placeholder="Título Principal" value={siteConfig.hero.title} onChange={e => setSiteConfig({...siteConfig, hero: {...siteConfig.hero, title: e.target.value}})} className="w-full bg-slate-50 px-6 py-4 rounded-2xl font-black text-xl border-none outline-none" />
-                    <textarea placeholder="Subtítulo" rows={3} value={siteConfig.hero.subtitle} onChange={e => setSiteConfig({...siteConfig, hero: {...siteConfig.hero, subtitle: e.target.value}})} className="w-full bg-slate-50 px-6 py-4 rounded-2xl font-medium border-none outline-none" />
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Título Grande</label>
+                       <input value={siteConfig.hero.title} onChange={e => setSiteConfig({...siteConfig, hero: {...siteConfig.hero, title: e.target.value}})} className="w-full bg-slate-50 px-6 py-4 rounded-2xl font-black text-xl border-none outline-none focus:ring-2 ring-emerald-500/20" />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Subtítulo (O que fazemos)</label>
+                       <textarea rows={3} value={siteConfig.hero.subtitle} onChange={e => setSiteConfig({...siteConfig, hero: {...siteConfig.hero, subtitle: e.target.value}})} className="w-full bg-slate-50 px-6 py-4 rounded-2xl font-medium border-none outline-none" />
+                    </div>
                     <div className="space-y-3">
-                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Imagem de Capa</label>
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Imagem Principal</label>
                        <div className="h-64 rounded-[2rem] overflow-hidden border-2 border-slate-100 relative group">
                           <img src={siteConfig.hero.imageUrl} className="w-full h-full object-cover" />
                           <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white cursor-pointer font-black transition">
-                             ALTERAR IMAGEM
-                             <input type="file" className="hidden" onChange={async e => {
+                             ALTERAR FOTO
+                             <input type="file" className="hidden" accept="image/*" onChange={async e => {
                                if(e.target.files?.[0]) {
                                   const url = await handleMediaUpload(e.target.files[0]);
                                   setSiteConfig({...siteConfig, hero: {...siteConfig.hero, imageUrl: url}});
@@ -184,69 +178,68 @@ const AdminDashboard: React.FC = () => {
                {activeTab === 'testimonials' && (
                  <div className="space-y-6">
                     {siteConfig.testimonials.map((t, i) => (
-                      <div key={t.id} className="bg-white p-8 rounded-[3rem] border border-slate-200 shadow-sm space-y-4">
+                      <div key={t.id} className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-6 animate-in slide-in-from-left-2">
                          <div className="flex gap-4">
-                            <input placeholder="Nome" value={t.name} onChange={e => {
+                            <input placeholder="Nome Completo" value={t.name} onChange={e => {
                               const newT = [...siteConfig.testimonials];
                               newT[i].name = e.target.value;
                               setSiteConfig({...siteConfig, testimonials: newT});
-                            }} className="flex-1 bg-slate-50 px-6 py-3 rounded-xl font-bold border-none" />
-                            <button onClick={() => setSiteConfig({...siteConfig, testimonials: siteConfig.testimonials.filter(item => item.id !== t.id)})} className="p-3 text-rose-400"><Trash2 /></button>
+                            }} className="flex-1 bg-slate-50 px-6 py-4 rounded-2xl font-bold border-none outline-none" />
+                            <button onClick={() => setSiteConfig({...siteConfig, testimonials: siteConfig.testimonials.filter(item => item.id !== t.id)})} className="p-4 text-rose-400 bg-rose-50 rounded-2xl hover:bg-rose-100 transition"><Trash2 /></button>
                          </div>
-                         <textarea placeholder="Testemunho..." value={t.text} onChange={e => {
+                         <textarea placeholder="Relato da experiência no projeto..." rows={4} value={t.text} onChange={e => {
                            const newT = [...siteConfig.testimonials];
                            newT[i].text = e.target.value;
                            setSiteConfig({...siteConfig, testimonials: newT});
-                         }} className="w-full bg-slate-50 px-6 py-4 rounded-2xl italic border-none" />
+                         }} className="w-full bg-slate-50 px-6 py-4 rounded-2xl italic border-none outline-none font-medium leading-relaxed" />
                       </div>
                     ))}
-                    <button onClick={() => setSiteConfig({...siteConfig, testimonials: [...siteConfig.testimonials, { id: Date.now().toString(), name: '', role: 'Formando', text: '' }]})} className="w-full border-2 border-dashed border-emerald-500/30 text-emerald-600 py-6 rounded-[2.5rem] font-black flex items-center justify-center gap-2 hover:bg-emerald-50 transition">
-                       <Plus /> ADICIONAR DEPOIMENTO REAL
+                    <button onClick={() => setSiteConfig({...siteConfig, testimonials: [...siteConfig.testimonials, { id: Date.now().toString(), name: '', role: 'Ex-Formando', text: '' }]})} className="w-full border-2 border-dashed border-emerald-500/40 text-emerald-600 py-10 rounded-[3.5rem] font-black flex items-center justify-center gap-3 hover:bg-emerald-50 transition uppercase tracking-widest text-xs">
+                       <Plus /> Adicionar Depoimento Real
                     </button>
                  </div>
                )}
 
                {activeTab === 'help' && (
-                  <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border border-slate-200 space-y-6">
-                     <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">IBAN Oficial</label>
-                        <input value={siteConfig.help.iban} onChange={e => setSiteConfig({...siteConfig, help: {...siteConfig.help, iban: e.target.value}})} className="w-full bg-slate-50 px-6 py-4 rounded-2xl font-black text-emerald-600 border-none" />
+                  <div className="bg-white p-12 rounded-[4rem] shadow-sm border border-slate-200 space-y-8">
+                     <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">IBAN Oficial (Benguela)</label>
+                        <input value={siteConfig.help.iban} onChange={e => setSiteConfig({...siteConfig, help: {...siteConfig.help, iban: e.target.value}})} className="w-full bg-emerald-50 px-8 py-5 rounded-[1.5rem] font-black text-emerald-700 border-none outline-none text-xl" />
                      </div>
-                     <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Banco</label>
-                        <input value={siteConfig.help.bankName} onChange={e => setSiteConfig({...siteConfig, help: {...siteConfig.help, bankName: e.target.value}})} className="w-full bg-slate-50 px-6 py-4 rounded-2xl font-bold border-none" />
+                     <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Nome do Banco</label>
+                        <input value={siteConfig.help.bankName} onChange={e => setSiteConfig({...siteConfig, help: {...siteConfig.help, bankName: e.target.value}})} className="w-full bg-slate-50 px-8 py-5 rounded-[1.5rem] font-bold border-none outline-none" />
                      </div>
                   </div>
                )}
-               
-               {/* As outras abas (Contact, About, Projects) seguem o mesmo padrão seguro de siteConfig */}
             </div>
           )}
-
         </div>
       </main>
 
       {/* Modal Editor Blog */}
       {isEditorOpen && (
-        <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-[500] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-4xl h-[85vh] rounded-[4rem] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300">
-             <header className="px-10 py-8 border-b flex justify-between items-center">
-                <h3 className="text-2xl font-black text-slate-900">Novo Artigo</h3>
-                <button onClick={() => setIsEditorOpen(false)} className="p-3 hover:bg-slate-100 rounded-xl transition"><X /></button>
+        <div className="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-[500] flex items-center justify-center p-4 md:p-12">
+          <div className="bg-white w-full max-w-5xl h-full md:h-[90vh] rounded-[4rem] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300">
+             <header className="px-10 py-8 border-b flex justify-between items-center bg-slate-50">
+                <h3 className="text-2xl font-black text-slate-900">Nova Publicação</h3>
+                <button onClick={() => setIsEditorOpen(false)} className="p-4 hover:bg-slate-100 rounded-2xl transition shadow-sm"><X /></button>
              </header>
-             <div className="flex-grow overflow-y-auto p-12 space-y-8 no-scrollbar">
-                <input placeholder="Título do Artigo..." value={blogData.title} onChange={e => setBlogData({...blogData, title: e.target.value})} className="text-4xl font-black w-full outline-none placeholder:text-slate-200" />
-                <label className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-slate-200 rounded-[3rem] cursor-pointer hover:bg-slate-50 transition">
-                   <Camera className="w-12 h-12 text-slate-200 mb-4" />
-                   <span className="font-black text-xs text-slate-400 uppercase">{blogImage ? 'Capa Selecionada' : 'Selecionar Foto'}</span>
-                   <input type="file" className="hidden" onChange={e => setBlogImage(e.target.files?.[0] || null)} />
+             <div className="flex-grow overflow-y-auto p-12 space-y-10 no-scrollbar">
+                <input placeholder="Título da Notícia..." value={blogData.title} onChange={e => setBlogData({...blogData, title: e.target.value})} className="text-5xl font-black w-full outline-none placeholder:text-slate-100 text-slate-900 tracking-tighter" />
+                
+                <label className="flex flex-col items-center justify-center p-16 border-4 border-dashed border-slate-100 rounded-[3.5rem] cursor-pointer hover:bg-slate-50 group transition-all">
+                   <Camera className="w-16 h-16 text-slate-100 group-hover:text-emerald-500 mb-4 transition" />
+                   <span className="font-black text-sm text-slate-400 uppercase tracking-widest">{blogImage ? 'Imagem Carregada!' : 'Selecionar Capa do Artigo'}</span>
+                   <input type="file" className="hidden" accept="image/*" onChange={e => setBlogImage(e.target.files?.[0] || null)} />
                 </label>
-                <div ref={editorRef} contentEditable className="min-h-[300px] outline-none text-xl text-slate-600 font-medium" />
+                
+                <div ref={editorRef} contentEditable className="min-h-[400px] outline-none text-xl leading-relaxed text-slate-600 font-medium bg-slate-50 p-12 rounded-[3.5rem] border border-slate-100" />
              </div>
-             <footer className="p-10 border-t flex justify-end gap-4">
-                <button onClick={() => setIsEditorOpen(false)} className="font-bold text-slate-400 px-6">Cancelar</button>
+             <footer className="p-10 border-t flex justify-end gap-6 bg-slate-50">
+                <button onClick={() => setIsEditorOpen(false)} className="font-bold text-slate-400 px-8">Cancelar</button>
                 <button onClick={async () => {
-                   if (!blogImage || !blogData.title) return alert('Título e imagem obrigatórios.');
+                   if (!blogImage || !blogData.title) return alert('É necessário um título e uma imagem de capa.');
                    setSubmitting(true);
                    try {
                      const content = editorRef.current?.innerHTML || '';
@@ -254,7 +247,9 @@ const AdminDashboard: React.FC = () => {
                      setIsEditorOpen(false);
                      fetchData();
                    } finally { setSubmitting(false); }
-                }} className="bg-emerald-600 text-white px-12 py-5 rounded-2xl font-black">Publicar Notícia</button>
+                }} disabled={submitting} className="bg-emerald-600 text-white px-20 py-6 rounded-3xl font-black shadow-2xl text-lg hover:bg-emerald-700 transition-all">
+                   {submitting ? <Loader2 className="animate-spin" /> : 'Publicar Agora'}
+                </button>
              </footer>
           </div>
         </div>

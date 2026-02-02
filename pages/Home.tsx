@@ -3,41 +3,31 @@ import React, { useEffect, useState } from 'react';
 import * as ReactRouterDom from 'react-router-dom';
 import { ArrowRight, Loader2, Award, Users, Zap, Quote, Star, Sparkles } from 'lucide-react';
 import { postService } from '../services/postService';
-import { siteService } from '../services/siteService';
-import { Post, SiteConfig } from '../types';
+import { SiteConfig, Post } from '../types';
 
 const { Link } = ReactRouterDom;
 
 interface HomeProps {
-  config?: SiteConfig | null;
+  config: SiteConfig | null;
 }
 
-const Home: React.FC<HomeProps> = ({ config: propConfig }) => {
+const Home: React.FC<HomeProps> = ({ config }) => {
   const [latestPosts, setLatestPosts] = useState<Post[]>([]);
-  const [config, setConfig] = useState<SiteConfig | null>(propConfig || null);
-  const [loading, setLoading] = useState(!propConfig);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchLatest = async () => {
-      try {
-        const posts = await postService.getLatestPosts(3);
-        setLatestPosts(posts);
-        if (!propConfig) {
-          const siteData = await siteService.getConfig();
-          setConfig(siteData);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchLatest();
-  }, [propConfig]);
+    postService.getLatestPosts(3).then(posts => {
+      setLatestPosts(posts);
+      setLoading(false);
+    });
+  }, []);
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Loader2 className="w-10 h-10 animate-spin text-emerald-600" />
+  if (loading && !config) return (
+    <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 className="w-12 h-12 animate-spin text-emerald-600" />
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Iniciando Experiência Wela...</span>
+      </div>
     </div>
   );
 
@@ -48,12 +38,11 @@ const Home: React.FC<HomeProps> = ({ config: propConfig }) => {
     badge: 'Benguela • Angola'
   };
 
-  // Depoimentos agora vêm exclusivamente do config (Admin)
   const testimonials = config?.testimonials || [];
 
   return (
     <div className="flex flex-col w-full overflow-x-hidden">
-      {/* Hero Section com pulsação suave e lenta */}
+      {/* Hero Section com a animação de pulsação suave configurada no index.html */}
       <section className="relative min-h-[95vh] flex items-center justify-center overflow-hidden py-24">
         <div className="absolute inset-0 z-0 animate-pulse-slow">
           <img src={hero.imageUrl} className="w-full h-full object-cover brightness-[0.25]" alt="Hero" />
@@ -71,10 +60,10 @@ const Home: React.FC<HomeProps> = ({ config: propConfig }) => {
             {hero.subtitle}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <Link to="/sobre" className="w-full sm:w-auto bg-emerald-600 text-white px-12 py-6 rounded-[2rem] font-black hover:bg-emerald-700 transition-all hover:scale-105 shadow-2xl shadow-emerald-900/40 text-lg uppercase tracking-widest">
+            <Link to="/sobre" className="w-full sm:w-auto bg-emerald-600 text-white px-12 py-6 rounded-[2rem] font-black hover:bg-emerald-700 transition-all hover:scale-105 shadow-2xl shadow-emerald-900/40 text-lg uppercase tracking-widest text-center">
               Nossa História
             </Link>
-            <Link to="/ajudar" className="w-full sm:w-auto bg-white/5 backdrop-blur-md text-white border border-white/20 px-12 py-6 rounded-[2rem] font-black hover:bg-white/10 transition-all text-lg uppercase tracking-widest">
+            <Link to="/ajudar" className="w-full sm:w-auto bg-white/5 backdrop-blur-md text-white border border-white/20 px-12 py-6 rounded-[2rem] font-black hover:bg-white/10 transition-all text-lg uppercase tracking-widest text-center">
               Como Ajudar
             </Link>
           </div>
@@ -106,7 +95,7 @@ const Home: React.FC<HomeProps> = ({ config: propConfig }) => {
         </div>
       </section>
 
-      {/* Vidas Transformadas (Apenas se houver depoimentos no Admin) */}
+      {/* Vidas Transformadas (Dinâmico: apenas se você cadastrar no Admin) */}
       {testimonials.length > 0 && (
         <section className="py-32 bg-slate-50 overflow-hidden relative">
           <div className="max-w-7xl mx-auto px-6">
@@ -118,7 +107,7 @@ const Home: React.FC<HomeProps> = ({ config: propConfig }) => {
                 <div className="flex gap-4">
                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
                       <Star className="text-amber-500 fill-amber-500" />
-                      <span className="font-black text-sm">{testimonials.length} Testemunhos</span>
+                      <span className="font-black text-sm">{testimonials.length} Histórias de Sucesso</span>
                    </div>
                 </div>
              </header>
@@ -128,7 +117,7 @@ const Home: React.FC<HomeProps> = ({ config: propConfig }) => {
                   <div key={t.id} className="bg-white p-12 rounded-[4rem] shadow-sm border border-slate-100 relative group overflow-hidden animate-in fade-in slide-in-from-bottom-4">
                      <div className="absolute top-0 right-0 p-12 opacity-5 text-slate-900"><Quote size={80} /></div>
                      <div className="flex items-center gap-6 mb-10">
-                        <img src={t.imageUrl || `https://ui-avatars.com/api/?name=${t.name}&background=10b981&color=fff`} className="w-16 h-16 rounded-2xl object-cover shadow-lg" />
+                        <img src={t.imageUrl || `https://ui-avatars.com/api/?name=${t.name}&background=10b981&color=fff`} className="w-16 h-16 rounded-2xl object-cover shadow-lg" alt={t.name} />
                         <div>
                            <h4 className="font-black text-slate-900 text-xl">{t.name}</h4>
                            <p className="text-emerald-600 font-black text-[10px] uppercase tracking-widest">{t.role}</p>
@@ -146,10 +135,10 @@ const Home: React.FC<HomeProps> = ({ config: propConfig }) => {
       <section className="py-32 bg-slate-900 text-white text-center relative overflow-hidden">
         <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-emerald-500/10 blur-[150px] rounded-full -translate-x-1/2 -translate-y-1/2"></div>
         <div className="max-w-4xl mx-auto px-6 relative z-10">
-          <h2 className="text-5xl md:text-7xl font-black mb-10 tracking-tighter">Pronto para dar o passo?</h2>
+          <h2 className="text-5xl md:text-7xl font-black mb-10 tracking-tighter leading-tight">Pronto para dar o próximo passo?</h2>
           <div className="flex flex-wrap justify-center gap-6">
              <Link to="/blog" className="bg-emerald-600 px-12 py-6 rounded-[2rem] font-black text-lg flex items-center gap-4 hover:bg-emerald-700 transition shadow-2xl shadow-emerald-600/20">
-                Ver Notícias <ArrowRight />
+                Ler Blog <ArrowRight />
              </Link>
              <Link to="/contatos" className="bg-white/10 border border-white/20 px-12 py-6 rounded-[2rem] font-black text-lg hover:bg-white/20 transition">
                 Falar Connosco
