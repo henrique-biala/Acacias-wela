@@ -37,21 +37,20 @@ const WelaAssistant = () => {
     setLoading(true);
 
     try {
-      // Inicializa a IA apenas quando necessário
-      const genAI = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
-      const response = await genAI.models.generateContent({
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: userMsg,
         config: {
-          systemInstruction: 'És o Assistente Inteligente do projeto social Acácias Wela de Benguela, Angola. Teu objetivo é ajudar jovens a saber sobre cursos, missões e como ajudar. Sê amigável, usa termos angolanos quando apropriado (como "Mambo", "Puto", "Kamba") e sê inspirador. O projeto foi fundado em 8 de março de 2020 por Edgar Reinaldo, Emília Wandessa e Ana Binga.'
+          systemInstruction: 'És o Assistente Inteligente do projeto social Acácias Wela de Benguela, Angola. Teu objetivo é ajudar jovens a saber sobre cursos, missões e como ajudar. Sê amigável, usa termos angolanos quando apropriado e sê inspirador. O projeto foi fundado por Edgar Reinaldo, Emília Wandessa e Ana Binga.'
         }
       });
       
-      const text = response.text || 'Tive um problema ao processar a tua mensagem. Podes tentar de novo?';
+      const text = response.text || 'Desculpa, tive um pequeno problema. Podes repetir?';
       setMessages(prev => [...prev, { role: 'ai', text }]);
     } catch (err) {
       console.error("AI Error:", err);
-      setMessages(prev => [...prev, { role: 'ai', text: 'De momento estou a descansar. Podes ligar para o nosso número ou mandar mensagem no WhatsApp!' }]);
+      setMessages(prev => [...prev, { role: 'ai', text: 'Estou com dificuldades técnicas. Podes contactar a equipa diretamente via WhatsApp!' }]);
     } finally {
       setLoading(false);
     }
@@ -66,35 +65,27 @@ const WelaAssistant = () => {
               <div className="bg-emerald-500 p-2 rounded-xl"><Sparkles size={16} /></div>
               <span className="font-black text-[10px] uppercase tracking-widest">Wela Assistente</span>
             </div>
-            <button onClick={() => setIsOpen(false)} className="hover:bg-white/10 p-2 rounded-lg transition"><X size={18} /></button>
+            <button onClick={() => setIsOpen(false)}><X size={18} /></button>
           </header>
           <div className="flex-grow overflow-y-auto p-6 space-y-4 no-scrollbar bg-slate-50">
             {messages.length === 0 && (
-              <div className="text-center py-10 space-y-3">
-                 <p className="text-slate-400 text-sm font-medium italic">Olá! Sou a IA das Acácias Wela. Em que posso ajudar hoje?</p>
-              </div>
+              <p className="text-slate-400 text-sm italic text-center py-10">Olá! Como posso ajudar hoje?</p>
             )}
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${m.role === 'user' ? 'bg-emerald-600 text-white font-bold' : 'bg-white border text-slate-700 shadow-sm font-medium'}`}>
+                <div className={`max-w-[85%] p-4 rounded-2xl text-sm ${m.role === 'user' ? 'bg-emerald-600 text-white font-bold' : 'bg-white border text-slate-700 shadow-sm font-medium'}`}>
                   {m.text}
                 </div>
               </div>
             ))}
-            {loading && (
-              <div className="flex justify-start">
-                <div className="bg-white border p-3 rounded-2xl shadow-sm">
-                   <Loader2 className="animate-spin text-emerald-500 w-5 h-5" />
-                </div>
-              </div>
-            )}
+            {loading && <div className="flex justify-start"><Loader2 className="animate-spin text-emerald-500 w-6 h-6" /></div>}
           </div>
           <form onSubmit={askAi} className="p-4 border-t bg-white flex gap-2">
             <input 
               value={input} 
               onChange={e => setInput(e.target.value)} 
-              placeholder="Escreve aqui..." 
-              className="flex-grow bg-slate-100 rounded-2xl px-5 py-3 text-sm outline-none focus:ring-2 ring-emerald-500/20 font-medium" 
+              placeholder="Perguntar..." 
+              className="flex-grow bg-slate-100 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 ring-emerald-500/20" 
             />
             <button className="bg-slate-900 text-white p-3 rounded-xl hover:bg-emerald-600 transition"><Send size={18} /></button>
           </form>
@@ -102,9 +93,9 @@ const WelaAssistant = () => {
       )}
       <button 
         onClick={() => setIsOpen(!isOpen)} 
-        className="bg-emerald-600 text-white p-5 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all border-4 border-white group"
+        className="bg-emerald-600 text-white p-5 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all border-4 border-white"
       >
-        {isOpen ? <X /> : <MessageCircle className="group-hover:rotate-12 transition-transform" />}
+        {isOpen ? <X /> : <MessageCircle className="animate-bounce" />}
       </button>
     </div>
   );
@@ -138,7 +129,7 @@ const Footer = ({ config }: { config: SiteConfig | null }) => {
         </div>
         <div>
           <h4 className="font-black mb-6 text-[10px] uppercase tracking-widest text-slate-500">Contacto</h4>
-          <p className="text-xs font-bold text-slate-400 mb-2 leading-relaxed">{info.location}</p>
+          <p className="text-xs font-bold text-slate-400 mb-2">{info.location}</p>
           <p className="text-xs font-bold text-emerald-400">{info.phone}</p>
         </div>
       </div>
@@ -162,6 +153,7 @@ const AppContent = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
+    // Carregamento de config otimizado: apenas uma vez na montagem
     siteService.getConfig().then(setSiteConfig);
     window.scrollTo(0, 0);
     return () => unsubscribe();
@@ -172,7 +164,7 @@ const AppContent = () => {
       {!isAdminPath && <Navbar />}
       <main className="flex-grow">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home config={siteConfig} />} />
           <Route path="/sobre" element={<About />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/projetos" element={<Projects />} />

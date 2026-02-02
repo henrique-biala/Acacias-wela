@@ -8,28 +8,32 @@ import { Post, SiteConfig } from '../types';
 
 const { Link } = ReactRouterDom;
 
-const Home: React.FC = () => {
+interface HomeProps {
+  config?: SiteConfig | null;
+}
+
+const Home: React.FC<HomeProps> = ({ config: propConfig }) => {
   const [latestPosts, setLatestPosts] = useState<Post[]>([]);
-  const [config, setConfig] = useState<SiteConfig | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useState<SiteConfig | null>(propConfig || null);
+  const [loading, setLoading] = useState(!propConfig);
 
   useEffect(() => {
-    const fetchAll = async () => {
+    const fetchLatest = async () => {
       try {
-        const [posts, siteData] = await Promise.all([
-          postService.getLatestPosts(3),
-          siteService.getConfig()
-        ]);
+        const posts = await postService.getLatestPosts(3);
         setLatestPosts(posts);
-        setConfig(siteData);
+        if (!propConfig) {
+          const siteData = await siteService.getConfig();
+          setConfig(siteData);
+        }
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchAll();
-  }, []);
+    fetchLatest();
+  }, [propConfig]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -44,16 +48,14 @@ const Home: React.FC = () => {
     badge: 'Benguela • Angola'
   };
 
-  const testimonials = config?.testimonials || [
-    { id: '1', name: 'Moisés Biala', role: 'Ex-Formando', text: 'O Acácias Wela abriu portas que eu nem sabia que existiam em Benguela. Hoje sou profissional graças ao apoio deles.' },
-    { id: '2', name: 'Sara Quivunza', role: 'Empreendedora', text: 'Aprendi não só informática, mas como gerir o meu próprio negócio. Impacto real!' }
-  ];
+  // Depoimentos agora vêm exclusivamente do config (Admin)
+  const testimonials = config?.testimonials || [];
 
   return (
     <div className="flex flex-col w-full overflow-x-hidden">
-      {/* Hero Section - Animação Pulse-Slow adicionada */}
+      {/* Hero Section com pulsação suave e lenta */}
       <section className="relative min-h-[95vh] flex items-center justify-center overflow-hidden py-24">
-        <div className="absolute inset-0 z-0 scale-105 animate-pulse-slow">
+        <div className="absolute inset-0 z-0 animate-pulse-slow">
           <img src={hero.imageUrl} className="w-full h-full object-cover brightness-[0.25]" alt="Hero" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/20 via-transparent to-slate-950/90"></div>
@@ -104,39 +106,41 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Vidas Transformadas (Testemunhos) */}
-      <section className="py-32 bg-slate-50 overflow-hidden relative">
-        <div className="max-w-7xl mx-auto px-6">
-           <header className="flex flex-col md:flex-row justify-between items-end gap-8 mb-20">
-              <div className="max-w-xl">
-                 <span className="text-emerald-600 font-black text-[10px] uppercase tracking-[0.5em] mb-4 block">Prova Social</span>
-                 <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter">Vidas Transformadas</h2>
-              </div>
-              <div className="flex gap-4">
-                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
-                    <Star className="text-amber-500 fill-amber-500" />
-                    <span className="font-black text-sm">2000+ Jovens</span>
-                 </div>
-              </div>
-           </header>
-           
-           <div className="grid md:grid-cols-2 gap-12">
-              {testimonials.map((t) => (
-                <div key={t.id} className="bg-white p-12 rounded-[4rem] shadow-sm border border-slate-100 relative group overflow-hidden">
-                   <div className="absolute top-0 right-0 p-12 opacity-5 text-slate-900 group-hover:scale-125 transition duration-1000"><Quote size={80} /></div>
-                   <div className="flex items-center gap-6 mb-10">
-                      <img src={t.imageUrl || `https://ui-avatars.com/api/?name=${t.name}&background=10b981&color=fff`} className="w-16 h-16 rounded-2xl object-cover shadow-lg" />
-                      <div>
-                         <h4 className="font-black text-slate-900 text-xl">{t.name}</h4>
-                         <p className="text-emerald-600 font-black text-[10px] uppercase tracking-widest">{t.role}</p>
-                      </div>
-                   </div>
-                   <p className="text-slate-600 text-xl font-medium leading-relaxed italic">"{t.text}"</p>
+      {/* Vidas Transformadas (Apenas se houver depoimentos no Admin) */}
+      {testimonials.length > 0 && (
+        <section className="py-32 bg-slate-50 overflow-hidden relative">
+          <div className="max-w-7xl mx-auto px-6">
+             <header className="flex flex-col md:flex-row justify-between items-end gap-8 mb-20">
+                <div className="max-w-xl">
+                   <span className="text-emerald-600 font-black text-[10px] uppercase tracking-[0.5em] mb-4 block">Impacto Real</span>
+                   <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter">Vidas Transformadas</h2>
                 </div>
-              ))}
-           </div>
-        </div>
-      </section>
+                <div className="flex gap-4">
+                   <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3">
+                      <Star className="text-amber-500 fill-amber-500" />
+                      <span className="font-black text-sm">{testimonials.length} Testemunhos</span>
+                   </div>
+                </div>
+             </header>
+             
+             <div className="grid md:grid-cols-2 gap-12">
+                {testimonials.map((t) => (
+                  <div key={t.id} className="bg-white p-12 rounded-[4rem] shadow-sm border border-slate-100 relative group overflow-hidden animate-in fade-in slide-in-from-bottom-4">
+                     <div className="absolute top-0 right-0 p-12 opacity-5 text-slate-900"><Quote size={80} /></div>
+                     <div className="flex items-center gap-6 mb-10">
+                        <img src={t.imageUrl || `https://ui-avatars.com/api/?name=${t.name}&background=10b981&color=fff`} className="w-16 h-16 rounded-2xl object-cover shadow-lg" />
+                        <div>
+                           <h4 className="font-black text-slate-900 text-xl">{t.name}</h4>
+                           <p className="text-emerald-600 font-black text-[10px] uppercase tracking-widest">{t.role}</p>
+                        </div>
+                     </div>
+                     <p className="text-slate-600 text-xl font-medium leading-relaxed italic">"{t.text}"</p>
+                  </div>
+                ))}
+             </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA Final */}
       <section className="py-32 bg-slate-900 text-white text-center relative overflow-hidden">
@@ -144,7 +148,7 @@ const Home: React.FC = () => {
         <div className="max-w-4xl mx-auto px-6 relative z-10">
           <h2 className="text-5xl md:text-7xl font-black mb-10 tracking-tighter">Pronto para dar o passo?</h2>
           <div className="flex flex-wrap justify-center gap-6">
-             <Link to="/blog" className="bg-emerald-600 px-12 py-6 rounded-[2rem] font-black text-lg flex items-center gap-4 hover:bg-emerald-700 transition">
+             <Link to="/blog" className="bg-emerald-600 px-12 py-6 rounded-[2rem] font-black text-lg flex items-center gap-4 hover:bg-emerald-700 transition shadow-2xl shadow-emerald-600/20">
                 Ver Notícias <ArrowRight />
              </Link>
              <Link to="/contatos" className="bg-white/10 border border-white/20 px-12 py-6 rounded-[2rem] font-black text-lg hover:bg-white/20 transition">
