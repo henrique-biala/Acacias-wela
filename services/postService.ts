@@ -36,10 +36,20 @@ export const postService = {
   },
 
   /**
-   * Converte um arquivo em Base64 com compressão
-   * @param isGallery Se for para galeria, comprime mais para economizar espaço no Firestore
+   * Converte um arquivo em Base64 com suporte a Imagens e Vídeos
    */
   async uploadMedia(file: File, isGallery: boolean = false): Promise<string> {
+    // Se for vídeo, retornamos o base64 direto (sem compressão de canvas)
+    if (file.type.startsWith('video/')) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = error => reject(error);
+      });
+    }
+
+    // Se for imagem, aplicamos compressão
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -48,7 +58,6 @@ export const postService = {
         img.src = event.target?.result as string;
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          // Reduzimos o tamanho máximo para galeria para caber mais fotos
           const MAX_DIM = isGallery ? 800 : 1200; 
           let width = img.width;
           let height = img.height;
@@ -70,8 +79,7 @@ export const postService = {
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
           
-          // Qualidade menor para galeria (0.5) vs capa (0.7)
-          const dataUrl = canvas.toDataURL('image/jpeg', isGallery ? 0.5 : 0.7);
+          const dataUrl = canvas.toDataURL('image/jpeg', isGallery ? 0.6 : 0.8);
           resolve(dataUrl);
         };
       };
@@ -80,15 +88,11 @@ export const postService = {
   },
 
   async createPost(post: Omit<Post, 'id' | 'createdAt' | 'gallery'>, imageFile: File, galleryFiles: File[] = []): Promise<string> {
-    // 1. Converter imagem de capa
     const imageUrl = await this.uploadMedia(imageFile, false);
-
-    // 2. Converter imagens da galeria (em paralelo)
     const gallery = await Promise.all(
       galleryFiles.map(file => this.uploadMedia(file, true))
     );
 
-    // 3. Salvar no Firestore
     const docRef = await addDoc(collection(db, COLLECTION_NAME), {
       ...post,
       imageUrl,

@@ -4,7 +4,7 @@ export interface Post {
   title: string;
   content: string;
   imageUrl: string;
-  gallery?: string[]; // Array de strings Base64 (pode conter imagens ou vídeos)
+  gallery?: string[];
   category: string;
   createdAt: any;
   author: string;
@@ -18,17 +18,18 @@ export interface Project {
   impact: string;
 }
 
+export interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  text: string;
+  imageUrl?: string;
+}
+
 export interface Founder {
   name: string;
   role: string;
   imageUrl?: string;
-}
-
-export interface SiteNotification {
-  active: boolean;
-  message: string;
-  link?: string;
-  type: 'success' | 'info' | 'warning';
 }
 
 export interface SiteConfig {
@@ -37,8 +38,6 @@ export interface SiteConfig {
     subtitle: string;
     imageUrl: string;
     badge: string;
-    homeTitle?: string;
-    homeBio?: string;
   };
   about: {
     title: string;
@@ -52,13 +51,12 @@ export interface SiteConfig {
     location: string;
     facebook?: string;
   };
+  help: {
+    iban: string;
+    bankName: string;
+    accountHolder: string;
+    volunteerText: string;
+  };
   projects: Project[];
-  notification?: SiteNotification;
-}
-
-export interface ContactForm {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
+  testimonials: Testimonial[];
 }

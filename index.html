@@ -1,78 +1,59 @@
 
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acacias Wela - Transformando Vidas</title>
+    <title>Acacias Wela - Transformando o Futuro em Benguela</title>
+    
+    <!-- PWA & SEO -->
+    <meta name="description" content="Projeto social em Benguela focado no treinamento profissional e impacto social da juventude angolana.">
+    <meta name="theme-color" content="#059669">
+    <link rel="manifest" href="./metadata.json">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/7KLKYM1.png">
+    
+    <!-- Open Graph (Facebook Sharing) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Acacias Wela - Impacto Social em Benguela">
+    <meta property="og:description" content="Capacitando a juventude de Angola através de formação prática e mentoria.">
+    <meta property="og:image" content="https://i.imgur.com/7KLKYM1.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+        :root { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
-        h1, h2, h3 {
-            font-family: 'Playfair Display', serif;
-        }
-        /* Estilos para o conteúdo do editor */
-        .post-content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 1.5rem;
-            margin: 2rem 0;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-        }
-        .post-content iframe, .post-content video {
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            border-radius: 1.5rem;
-            margin: 2rem 0;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-        }
-        .post-content audio {
-            width: 100%;
-            margin: 1.5rem 0;
-        }
-        .post-content h2 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-top: 2.5rem;
-            margin-bottom: 1rem;
-            color: #0f172a;
-        }
-        .post-content p {
-            margin-bottom: 1.25rem;
-            line-height: 1.8;
-            color: #334155;
-        }
-        .post-content blockquote {
-            border-left: 4px solid #10b981;
-            padding: 1rem 1.5rem;
-            font-style: italic;
-            color: #475569;
-            background-color: #f0fdf4;
-            border-radius: 0.5rem;
-            margin: 2rem 0;
-        }
+
+        .post-content img { max-width: 100%; border-radius: 2rem; margin: 2rem 0; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+        .post-content p { margin-bottom: 1.5rem; line-height: 1.8; color: #475569; font-size: 1.125rem; }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0",
-    "firebase/": "https://esm.sh/firebase@^12.8.0/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
-    "@google/genai": "https://esm.sh/@google/genai@^1.39.0"
-  }
-}
-</script>
+    <script type="importmap">
+    {
+      "imports": {
+        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+        "react/": "https://esm.sh/react@^19.2.4/",
+        "react": "https://esm.sh/react@^19.2.4",
+        "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0",
+        "firebase/": "https://esm.sh/firebase@^12.8.0/",
+        "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+        "@google/genai": "https://esm.sh/@google/genai@^1.39.0"
+      }
+    }
+    </script>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body>
     <div id="root"></div>
-    <!-- PONTO DE ENTRADA OBRIGATÓRIO PARA EVITAR TELA BRANCA -->
     <script type="module" src="./index.tsx"></script>
 </body>
 </html>
