@@ -51,16 +51,16 @@ const Home: React.FC = () => {
 
   return (
     <div className="flex flex-col w-full overflow-x-hidden">
-      {/* Hero Section */}
+      {/* Hero Section - Animação Pulse-Slow adicionada */}
       <section className="relative min-h-[95vh] flex items-center justify-center overflow-hidden py-24">
-        <div className="absolute inset-0 z-0 scale-105 animate-pulse duration-[10000ms]">
+        <div className="absolute inset-0 z-0 scale-105 animate-pulse-slow">
           <img src={hero.imageUrl} className="w-full h-full object-cover brightness-[0.25]" alt="Hero" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/20 via-transparent to-slate-950/90"></div>
         
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center animate-in fade-in slide-in-from-bottom-12 duration-1000">
           <div className="inline-flex items-center gap-3 px-6 py-2.5 bg-emerald-500/20 backdrop-blur-xl border border-white/10 rounded-full text-emerald-400 text-xs font-black mb-10 tracking-[0.3em] uppercase">
-            <Sparkles size={16} className="animate-spin-slow" /> {hero.badge}
+            <Sparkles size={16} /> {hero.badge}
           </div>
           <h1 className="text-6xl sm:text-7xl md:text-9xl font-black text-white mb-8 leading-[0.9] tracking-tighter">
             Acácias <span className="text-emerald-500">Wela</span>
