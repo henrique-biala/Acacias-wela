@@ -57,6 +57,9 @@ export interface SiteConfig {
     accountHolder: string;
     volunteerText: string;
   };
+  navbar: {
+    links: { name: string; path: string }[];
+  };
   projects: Project[];
   testimonials: Testimonial[];
 }

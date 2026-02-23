@@ -14,8 +14,12 @@ import { PROJECTS as DEFAULT_PROJECTS, LOGO_URL, CONTACT_INFO } from '../constan
 
 const { useNavigate } = ReactRouterDom;
 
-const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'blog' | 'hero' | 'about' | 'projects' | 'contact' | 'help' | 'testimonials'>('blog');
+interface AdminDashboardProps {
+  onConfigUpdate?: (config: SiteConfig) => void;
+}
+
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ onConfigUpdate }) => {
+  const [activeTab, setActiveTab] = useState<'blog' | 'navbar' | 'hero' | 'about' | 'projects' | 'contact' | 'help' | 'testimonials'>('blog');
   const [posts, setPosts] = useState<Post[]>([]);
   const [siteConfig, setSiteConfig] = useState<SiteConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,6 +48,13 @@ const AdminDashboard: React.FC = () => {
         about: { title: 'Sobre Nós', text: '', missionQuote: '', founders: [] },
         contact: { email: CONTACT_INFO.email, phone: CONTACT_INFO.phone, location: CONTACT_INFO.location, facebook: '' },
         help: { iban: '', bankName: '', accountHolder: '', volunteerText: '' },
+        navbar: { links: [
+          { name: 'Início', path: '/' },
+          { name: 'Sobre Nós', path: '/sobre' },
+          { name: 'Projetos', path: '/projetos' },
+          { name: 'Blog', path: '/blog' },
+          { name: 'Contatos', path: '/contatos' },
+        ]},
         projects: DEFAULT_PROJECTS,
         testimonials: []
       };
@@ -61,6 +72,7 @@ const AdminDashboard: React.FC = () => {
     setSubmitting(true);
     try {
       await siteService.saveConfig(siteConfig);
+      if (onConfigUpdate) onConfigUpdate(siteConfig);
       alert('Informações guardadas com sucesso! O site já foi atualizado.');
     } catch (e) { 
       alert('Erro ao guardar as alterações. Verifica a tua ligação.'); 
@@ -91,6 +103,7 @@ const AdminDashboard: React.FC = () => {
         <nav className="flex-grow p-4 space-y-2 overflow-y-auto no-scrollbar">
           {[
             { id: 'blog', icon: FileText, label: 'Notícias / Blog' },
+            { id: 'navbar', icon: Globe, label: 'Menu de Navegação' },
             { id: 'hero', icon: Layout, label: 'Banner de Entrada' },
             { id: 'about', icon: Info, label: 'Página Sobre' },
             { id: 'projects', icon: Briefcase, label: 'Nossos Projetos' },
@@ -146,6 +159,48 @@ const AdminDashboard: React.FC = () => {
                     {submitting ? <Loader2 className="animate-spin" /> : <Save size={20} />} Guardar Tudo
                   </button>
                </div>
+
+               {activeTab === 'navbar' && (
+                 <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border border-slate-200 space-y-8">
+                    <div className="space-y-4">
+                       {siteConfig.navbar.links.map((link, i) => (
+                         <div key={i} className="flex gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <input 
+                              value={link.name} 
+                              onChange={e => {
+                                const newLinks = [...siteConfig.navbar.links];
+                                newLinks[i].name = e.target.value;
+                                setSiteConfig({...siteConfig, navbar: { links: newLinks }});
+                              }} 
+                              placeholder="Nome do Menu"
+                              className="flex-1 bg-white px-4 py-2 rounded-xl font-bold border-none outline-none" 
+                            />
+                            <input 
+                              value={link.path} 
+                              onChange={e => {
+                                const newLinks = [...siteConfig.navbar.links];
+                                newLinks[i].path = e.target.value;
+                                setSiteConfig({...siteConfig, navbar: { links: newLinks }});
+                              }} 
+                              placeholder="Caminho (ex: /sobre)"
+                              className="flex-1 bg-white px-4 py-2 rounded-xl text-xs border-none outline-none" 
+                            />
+                            <button onClick={() => {
+                              const newLinks = siteConfig.navbar.links.filter((_, idx) => idx !== i);
+                              setSiteConfig({...siteConfig, navbar: { links: newLinks }});
+                            }} className="text-rose-400 p-2 hover:bg-rose-50 rounded-lg">
+                              <Trash2 size={16} />
+                            </button>
+                         </div>
+                       ))}
+                       <button onClick={() => {
+                         setSiteConfig({...siteConfig, navbar: { links: [...siteConfig.navbar.links, { name: 'Novo Link', path: '/' }] }});
+                       }} className="w-full border-2 border-dashed border-emerald-500/20 text-emerald-600 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-50 transition">
+                          <Plus size={18} /> Adicionar Item ao Menu
+                       </button>
+                    </div>
+                 </div>
+               )}
 
                {activeTab === 'hero' && (
                  <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border border-slate-200 space-y-8">

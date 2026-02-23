@@ -4,15 +4,20 @@ import React, { useState } from 'react';
 import * as ReactRouterDom from 'react-router-dom';
 import { Menu, X, TreeDeciduous } from 'lucide-react';
 import { LOGO_URL } from '../constants';
+import { SiteConfig } from '../types';
 
 const { Link, useLocation } = ReactRouterDom;
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  config: SiteConfig | null;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ config }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [imgError, setImgError] = useState(false);
   const location = useLocation();
 
-  const navLinks = [
+  const navLinks = config?.navbar?.links || [
     { name: 'Início', path: '/' },
     { name: 'Sobre Nós', path: '/sobre' },
     { name: 'Projetos', path: '/projetos' },
