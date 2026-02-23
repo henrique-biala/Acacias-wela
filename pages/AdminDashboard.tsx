@@ -157,6 +157,10 @@ const AdminDashboard: React.FC = () => {
                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Subtítulo (O que fazemos)</label>
                        <textarea rows={3} value={siteConfig.hero.subtitle} onChange={e => setSiteConfig({...siteConfig, hero: {...siteConfig.hero, subtitle: e.target.value}})} className="w-full bg-slate-50 px-6 py-4 rounded-2xl font-medium border-none outline-none" />
                     </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Badge (Localização/Destaque)</label>
+                       <input value={siteConfig.hero.badge} onChange={e => setSiteConfig({...siteConfig, hero: {...siteConfig.hero, badge: e.target.value}})} className="w-full bg-slate-50 px-6 py-4 rounded-2xl font-bold border-none outline-none" />
+                    </div>
                     <div className="space-y-3">
                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Imagem Principal</label>
                        <div className="h-64 rounded-[2rem] overflow-hidden border-2 border-slate-100 relative group">
@@ -175,17 +179,150 @@ const AdminDashboard: React.FC = () => {
                  </div>
                )}
 
+               {activeTab === 'about' && (
+                 <div className="bg-white p-10 rounded-[3.5rem] shadow-sm border border-slate-200 space-y-10">
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Título da Página</label>
+                       <input value={siteConfig.about.title} onChange={e => setSiteConfig({...siteConfig, about: {...siteConfig.about, title: e.target.value}})} className="w-full bg-slate-50 px-6 py-4 rounded-2xl font-black text-xl border-none outline-none" />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Texto Principal (Manifesto)</label>
+                       <textarea rows={8} value={siteConfig.about.text} onChange={e => setSiteConfig({...siteConfig, about: {...siteConfig.about, text: e.target.value}})} className="w-full bg-slate-50 px-6 py-4 rounded-2xl font-medium border-none outline-none leading-relaxed" />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Frase de Missão (Citação)</label>
+                       <textarea rows={3} value={siteConfig.about.missionQuote} onChange={e => setSiteConfig({...siteConfig, about: {...siteConfig.about, missionQuote: e.target.value}})} className="w-full bg-emerald-50 px-6 py-4 rounded-2xl font-bold italic border-none outline-none text-emerald-900" />
+                    </div>
+                    
+                    <div className="space-y-6">
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Fundadores</label>
+                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          {siteConfig.about.founders.map((f, i) => (
+                            <div key={i} className="bg-slate-50 p-6 rounded-3xl border border-slate-100 space-y-4">
+                               <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto relative group">
+                                  <img src={f.imageUrl || `https://ui-avatars.com/api/?name=${f.name}&background=10b981&color=fff`} className="w-full h-full object-cover" />
+                                  <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[8px] text-white cursor-pointer font-black transition">
+                                     FOTO
+                                     <input type="file" className="hidden" accept="image/*" onChange={async e => {
+                                       if(e.target.files?.[0]) {
+                                          const url = await handleMediaUpload(e.target.files[0]);
+                                          const newF = [...siteConfig.about.founders];
+                                          newF[i].imageUrl = url;
+                                          setSiteConfig({...siteConfig, about: {...siteConfig.about, founders: newF}});
+                                       }
+                                     }} />
+                                  </label>
+                               </div>
+                               <input placeholder="Nome" value={f.name} onChange={e => {
+                                 const newF = [...siteConfig.about.founders];
+                                 newF[i].name = e.target.value;
+                                 setSiteConfig({...siteConfig, about: {...siteConfig.about, founders: newF}});
+                               }} className="w-full bg-white px-4 py-2 rounded-xl text-xs font-bold border-none outline-none" />
+                               <input placeholder="Cargo" value={f.role} onChange={e => {
+                                 const newF = [...siteConfig.about.founders];
+                                 newF[i].role = e.target.value;
+                                 setSiteConfig({...siteConfig, about: {...siteConfig.about, founders: newF}});
+                               }} className="w-full bg-white px-4 py-2 rounded-xl text-[10px] font-medium border-none outline-none" />
+                            </div>
+                          ))}
+                       </div>
+                    </div>
+                 </div>
+               )}
+
+               {activeTab === 'projects' && (
+                 <div className="space-y-8">
+                    {siteConfig.projects.map((p, i) => (
+                      <div key={p.id} className="bg-white p-10 rounded-[3.5rem] border border-slate-200 shadow-sm space-y-8">
+                         <div className="flex justify-between items-center">
+                            <h3 className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Projeto #{i+1}</h3>
+                            <button onClick={() => setSiteConfig({...siteConfig, projects: siteConfig.projects.filter(item => item.id !== p.id)})} className="p-3 text-rose-400 bg-rose-50 rounded-xl hover:bg-rose-100 transition"><Trash2 size={18} /></button>
+                         </div>
+                         <div className="grid md:grid-cols-2 gap-8">
+                            <div className="space-y-6">
+                               <div className="space-y-2">
+                                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Título do Projeto</label>
+                                  <input value={p.title} onChange={e => {
+                                    const newP = [...siteConfig.projects];
+                                    newP[i].title = e.target.value;
+                                    setSiteConfig({...siteConfig, projects: newP});
+                                  }} className="w-full bg-slate-50 px-6 py-4 rounded-2xl font-bold border-none outline-none" />
+                               </div>
+                               <div className="space-y-2">
+                                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Impacto (Badge)</label>
+                                  <input value={p.impact} onChange={e => {
+                                    const newP = [...siteConfig.projects];
+                                    newP[i].impact = e.target.value;
+                                    setSiteConfig({...siteConfig, projects: newP});
+                                  }} className="w-full bg-sky-50 px-6 py-4 rounded-2xl font-bold text-sky-700 border-none outline-none" />
+                               </div>
+                            </div>
+                            <div className="space-y-2">
+                               <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Imagem do Projeto</label>
+                               <div className="h-40 rounded-3xl overflow-hidden border-2 border-slate-100 relative group">
+                                  <img src={p.image} className="w-full h-full object-cover" />
+                                  <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white cursor-pointer font-black transition text-xs">
+                                     ALTERAR
+                                     <input type="file" className="hidden" accept="image/*" onChange={async e => {
+                                       if(e.target.files?.[0]) {
+                                          const url = await handleMediaUpload(e.target.files[0]);
+                                          const newP = [...siteConfig.projects];
+                                          newP[i].image = url;
+                                          setSiteConfig({...siteConfig, projects: newP});
+                                       }
+                                     }} />
+                                  </label>
+                               </div>
+                            </div>
+                         </div>
+                         <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Descrição Detalhada</label>
+                            <textarea rows={4} value={p.description} onChange={e => {
+                              const newP = [...siteConfig.projects];
+                              newP[i].description = e.target.value;
+                              setSiteConfig({...siteConfig, projects: newP});
+                            }} className="w-full bg-slate-50 px-6 py-4 rounded-2xl font-medium border-none outline-none leading-relaxed" />
+                         </div>
+                      </div>
+                    ))}
+                    <button onClick={() => setSiteConfig({...siteConfig, projects: [...siteConfig.projects, { id: Date.now().toString(), title: '', description: '', image: '', impact: 'Novo Impacto' }]})} className="w-full border-2 border-dashed border-emerald-500/40 text-emerald-600 py-10 rounded-[3.5rem] font-black flex items-center justify-center gap-3 hover:bg-emerald-50 transition uppercase tracking-widest text-xs">
+                       <Plus /> Criar Novo Projeto
+                    </button>
+                 </div>
+               )}
+
                {activeTab === 'testimonials' && (
                  <div className="space-y-6">
                     {siteConfig.testimonials.map((t, i) => (
                       <div key={t.id} className="bg-white p-10 rounded-[3rem] border border-slate-200 shadow-sm space-y-6 animate-in slide-in-from-left-2">
                          <div className="flex gap-4">
-                            <input placeholder="Nome Completo" value={t.name} onChange={e => {
-                              const newT = [...siteConfig.testimonials];
-                              newT[i].name = e.target.value;
-                              setSiteConfig({...siteConfig, testimonials: newT});
-                            }} className="flex-1 bg-slate-50 px-6 py-4 rounded-2xl font-bold border-none outline-none" />
-                            <button onClick={() => setSiteConfig({...siteConfig, testimonials: siteConfig.testimonials.filter(item => item.id !== t.id)})} className="p-4 text-rose-400 bg-rose-50 rounded-2xl hover:bg-rose-100 transition"><Trash2 /></button>
+                            <div className="flex-1 space-y-4">
+                               <input placeholder="Nome Completo" value={t.name} onChange={e => {
+                                 const newT = [...siteConfig.testimonials];
+                                 newT[i].name = e.target.value;
+                                 setSiteConfig({...siteConfig, testimonials: newT});
+                               }} className="w-full bg-slate-50 px-6 py-4 rounded-2xl font-bold border-none outline-none" />
+                               <input placeholder="Cargo / Função (ex: Ex-Formando)" value={t.role} onChange={e => {
+                                 const newT = [...siteConfig.testimonials];
+                                 newT[i].role = e.target.value;
+                                 setSiteConfig({...siteConfig, testimonials: newT});
+                               }} className="w-full bg-slate-50 px-6 py-4 rounded-2xl text-xs font-bold text-emerald-600 border-none outline-none" />
+                            </div>
+                            <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-slate-100 relative group shrink-0">
+                               <img src={t.imageUrl || `https://ui-avatars.com/api/?name=${t.name}&background=10b981&color=fff`} className="w-full h-full object-cover" />
+                               <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-[8px] text-white cursor-pointer font-black transition">
+                                  FOTO
+                                  <input type="file" className="hidden" accept="image/*" onChange={async e => {
+                                    if(e.target.files?.[0]) {
+                                       const url = await handleMediaUpload(e.target.files[0]);
+                                       const newT = [...siteConfig.testimonials];
+                                       newT[i].imageUrl = url;
+                                       setSiteConfig({...siteConfig, testimonials: newT});
+                                    }
+                                  }} />
+                               </label>
+                            </div>
+                            <button onClick={() => setSiteConfig({...siteConfig, testimonials: siteConfig.testimonials.filter(item => item.id !== t.id)})} className="p-4 text-rose-400 bg-rose-50 rounded-2xl hover:bg-rose-100 transition h-fit"><Trash2 /></button>
                          </div>
                          <textarea placeholder="Relato da experiência no projeto..." rows={4} value={t.text} onChange={e => {
                            const newT = [...siteConfig.testimonials];
@@ -209,6 +346,37 @@ const AdminDashboard: React.FC = () => {
                      <div className="space-y-3">
                         <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Nome do Banco</label>
                         <input value={siteConfig.help.bankName} onChange={e => setSiteConfig({...siteConfig, help: {...siteConfig.help, bankName: e.target.value}})} className="w-full bg-slate-50 px-8 py-5 rounded-[1.5rem] font-bold border-none outline-none" />
+                     </div>
+                     <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Titular da Conta</label>
+                        <input value={siteConfig.help.accountHolder} onChange={e => setSiteConfig({...siteConfig, help: {...siteConfig.help, accountHolder: e.target.value}})} className="w-full bg-slate-50 px-8 py-5 rounded-[1.5rem] font-bold border-none outline-none" />
+                     </div>
+                     <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Texto de Voluntariado</label>
+                        <textarea rows={4} value={siteConfig.help.volunteerText} onChange={e => setSiteConfig({...siteConfig, help: {...siteConfig.help, volunteerText: e.target.value}})} className="w-full bg-slate-50 px-8 py-5 rounded-[1.5rem] font-medium border-none outline-none" />
+                     </div>
+                  </div>
+               )}
+
+               {activeTab === 'contact' && (
+                  <div className="bg-white p-12 rounded-[4rem] shadow-sm border border-slate-200 space-y-8">
+                     <div className="grid md:grid-cols-2 gap-8">
+                        <div className="space-y-3">
+                           <label className="text-[10px] font-black uppercase text-slate-400 ml-2">E-mail de Contacto</label>
+                           <input value={siteConfig.contact.email} onChange={e => setSiteConfig({...siteConfig, contact: {...siteConfig.contact, email: e.target.value}})} className="w-full bg-slate-50 px-8 py-5 rounded-[1.5rem] font-bold border-none outline-none" />
+                        </div>
+                        <div className="space-y-3">
+                           <label className="text-[10px] font-black uppercase text-slate-400 ml-2">WhatsApp / Telefone</label>
+                           <input value={siteConfig.contact.phone} onChange={e => setSiteConfig({...siteConfig, contact: {...siteConfig.contact, phone: e.target.value}})} className="w-full bg-slate-50 px-8 py-5 rounded-[1.5rem] font-bold border-none outline-none" />
+                        </div>
+                     </div>
+                     <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Localização Física</label>
+                        <input value={siteConfig.contact.location} onChange={e => setSiteConfig({...siteConfig, contact: {...siteConfig.contact, location: e.target.value}})} className="w-full bg-slate-50 px-8 py-5 rounded-[1.5rem] font-bold border-none outline-none" />
+                     </div>
+                     <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Link do Facebook</label>
+                        <input value={siteConfig.contact.facebook} onChange={e => setSiteConfig({...siteConfig, contact: {...siteConfig.contact, facebook: e.target.value}})} className="w-full bg-slate-50 px-8 py-5 rounded-[1.5rem] font-bold border-none outline-none" />
                      </div>
                   </div>
                )}

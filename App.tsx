@@ -37,8 +37,15 @@ const WelaAssistant = () => {
     setLoading(true);
 
     try {
-      // Inicialização segura usando a variável de ambiente do Netlify
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const apiKey = process.env.GEMINI_API_KEY;
+      
+      if (!apiKey) {
+        setMessages(prev => [...prev, { role: 'ai', text: 'A chave API não foi encontrada. Se estás no Netlify, configura a variável GEMINI_API_KEY nas definições de ambiente.' }]);
+        setLoading(false);
+        return;
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: query,
